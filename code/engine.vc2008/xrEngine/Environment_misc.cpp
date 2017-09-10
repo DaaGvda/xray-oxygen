@@ -450,7 +450,7 @@ void	CEnvironment::mods_load()
 
 		while (0 != (sz = fs->find_chunk(id)))
 		{
-			if (id == 0 && sz == sizeof(size_t))
+			if (id == 0 && sz == sizeof(u32))
 			{
 				ver = fs->r_u32();
 			}

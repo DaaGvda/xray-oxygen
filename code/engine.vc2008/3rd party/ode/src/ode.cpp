@@ -1255,9 +1255,9 @@ void dWorldDestroy (dxWorld *w)
 void dWorldSetGravity (dWorldID w, dReal x, dReal y, dReal z)
 {
   ///dAASSERT (w);
-  w->gravity[0] = x;
-  w->gravity[1] = y;
-  w->gravity[2] = z;
+  dxWorld::gravity[0] = x;
+  dxWorld::gravity[1] = y;
+  dxWorld::gravity[2] = z;
 }
 
 

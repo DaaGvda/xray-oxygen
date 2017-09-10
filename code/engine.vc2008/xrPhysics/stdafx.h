@@ -18,6 +18,16 @@
 
 #include "d3d9types.h"
 
+#ifdef DEBUG
+#define _DEBUG
+#endif
+
+#include "PxPhysicsApi.h"
+
+#ifdef DEBUG
+#undef _DEBUG
+#endif
+
 class CGameMtlLibrary;
 IC CGameMtlLibrary &GMLibrary()
 {

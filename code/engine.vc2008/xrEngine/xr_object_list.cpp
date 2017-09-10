@@ -207,7 +207,7 @@ void CObjectList::Update		(bool bForce)
 		
 		for(auto It : m_relcase_callbacks)
 		{
-			VERIFY			(*It.m_ID==(It-m_relcase_callbacks.begin()));
+			//VERIFY			(*It.m_ID==(It-m_relcase_callbacks.begin()));
 			for (auto dIt: destroy_queue)
 			{
 				It.m_Callback(dIt);

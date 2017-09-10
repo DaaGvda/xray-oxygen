@@ -318,6 +318,9 @@
     <ClCompile Include="collisiondamagereceiver.cpp">
       <Filter>physics\damage_receiver</Filter>
     </ClCompile>
+    <ClCompile Include="PhysX\PXWorld.cpp">
+      <Filter>physics\Base\Objects\World</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -592,6 +595,9 @@
     </ClInclude>
     <ClInclude Include="icollisiondamagereceiver.h">
       <Filter>physics\damage_receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysX\PXWorld.h">
+      <Filter>physics\Base\Objects\World</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

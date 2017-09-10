@@ -151,6 +151,9 @@
 #    define NDEBUG 1
 #  endif
 #  include <assert.h>
+#  if !defined(LZO_DEBUG)
+#    undef NDEBUG
+#  endif
 #endif
 
 #if 0 && defined(__BOUNDS_CHECKING_ON)
