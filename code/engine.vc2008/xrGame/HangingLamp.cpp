@@ -5,7 +5,7 @@
 #include "../xrphysics/PhysicsShell.h"
 #include "../xrphysics/MathUtils.h"
 //#include "Physics.h"
-#include "xrserver_objects_alife.h"
+#include "xrServer_objects_alife.h"
 //#include "PHElement.h"
 #include "../Include/xrRender/Kinematics.h"
 #include "../Include/xrRender/KinematicsAnimated.h"

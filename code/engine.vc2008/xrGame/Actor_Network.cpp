@@ -3,8 +3,8 @@
 #include "hudmanager.h"
 #include "Actor_Flags.h"
 #include "inventory.h"
-#include "xrserver_objects_alife_monsters.h"
-#include "xrServer.h"
+#include "xrServer_objects_alife_monsters.h"
+#include "game_sv_Single.h"
 #include "../xrEngine/CustomHUD.h"
 #include "CameraLook.h"
 #include "CameraFirstEye.h"
@@ -39,12 +39,10 @@
 #include "gamepersistent.h"
 #include "game_object_space.h"
 #include "GameTaskManager.h"
-#include "game_base_kill_type.h"
 #include "holder_custom.h"
 #include "actor_memory.h"
 #include "actor_statistic_mgr.h"
 #include "characterphysicssupport.h"
-#include "game_cl_base_weapon_usage_statistic.h"
 #include "../xrengine/xr_collide_form.h"
 #ifdef DEBUG
 #	include "debug_renderer.h"
@@ -59,7 +57,6 @@ CActor*		g_actor						= NULL;
 
 CActor*			Actor()	
 {	
-//	R_ASSERT2	(true, "Actor() method invokation must be only in Single Player game!");
 	VERIFY		(g_actor);
 	return		(g_actor); 
 };
@@ -300,8 +297,6 @@ void		CActor::net_Import_Base				( NET_Packet& P)
 	//CSE_ALifeCreatureAbstract
 	float health;
 	P.r_float			(health);
-	//----------- for E3 -----------------------------
-	if (OnClient())SetfHealth(health);
 	//------------------------------------------------
 	P.r_u32				(N.dwTimeStamp	);
 	//---------------------------------------------
@@ -320,13 +315,8 @@ void		CActor::net_Import_Base				( NET_Packet& P)
 	id_Team				= P.r_u8();
 	id_Squad			= P.r_u8();
 	id_Group			= P.r_u8();
-	
-	
-	//----------- for E3 -----------------------------
-//	if (OnClient())
 	//------------------------------------------------
 	{
-//		if (OnServer() || Remote())
 		if (Level().IsDemoPlay())
 		{
 			unaffected_r_torso.yaw		= N.o_torso.yaw;
@@ -338,41 +328,15 @@ void		CActor::net_Import_Base				( NET_Packet& P)
 		};
 	};
 
-	//CSE_ALifeCreatureTrader
-//	P.r_float			(fDummy);
-//	m_dwMoney =			P.r_u32();
-
 	//CSE_ALifeCreatureActor
 	P.r_u16				(tmp			); N.mstate = u32(tmp);
 	P.r_sdir			(N.p_accel		);
 	P.r_sdir			(N.p_velocity	);
 	float				fRRadiation;
 	P.r_float			(fRRadiation);
-	//----------- for E3 -----------------------------
-	if (OnClient())		
-	{
-//		fArmor = fRArmor;
-		SetfRadiation(fRRadiation);
-	};
 	//------------------------------------------------
-
 	u8					ActiveSlot;
 	P.r_u8				(ActiveSlot);
-	
-	//----------- for E3 -----------------------------
-	if (OnClient())
-	//------------------------------------------------
-	{
-		if (ActiveSlot == NO_ACTIVE_SLOT) inventory().SetActiveSlot(NO_ACTIVE_SLOT);
-		else 
-		{
-			if (inventory().GetActiveSlot() != u16(ActiveSlot))
-				inventory().Activate(ActiveSlot);
-		};
-	}
-
-	//----------- for E3 -----------------------------
-	if (Local() && OnClient()) return;
 	//-------------------------------------------------
 	if (!NET.empty() && N.dwTimeStamp < NET.back().dwTimeStamp) return;
 
@@ -463,8 +427,7 @@ void		CActor::net_Import_Physic			( NET_Packet& P)
 		N_A.State.previous_position	= N_A.State.position;
 		N_A.State.previous_quaternion = N_A.State.quaternion;
 		//----------- for E3 -----------------------------
-		if (Local() && OnClient() || !g_Alive()) return;
-//		if (g_Alive() && (Remote() || OnServer()))
+		if (!g_Alive()) return;
 		{
 			//-----------------------------------------------
 			if (!NET_A.empty() && N_A.dwTimeStamp < NET_A.back().dwTimeStamp) return;
@@ -509,10 +472,7 @@ BOOL CActor::net_Spawn(CSE_Abstract* DC)
 	//force actor to be local on server client
 	CSE_Abstract			*e = (CSE_Abstract*)(DC);
 	CSE_ALifeCreatureActor	*E = smart_cast<CSE_ALifeCreatureActor*>(e);
-	if (OnServer())
-	{
-		E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
-	}
+	E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
 
 	if (TRUE == E->s_flags.test(M_SPAWN_OBJECT_LOCAL) && TRUE == E->s_flags.is(M_SPAWN_OBJECT_ASPLAYER))
 		g_actor = this;
@@ -654,9 +614,6 @@ BOOL CActor::net_Spawn(CSE_Abstract* DC)
 	spatial.type |= STYPE_REACTTOSOUND;
 	psHUD_Flags.set(HUD_WEAPON_RT, TRUE);
 	psHUD_Flags.set(HUD_WEAPON_RT2, TRUE);
-
-	if (Level().IsDemoPlay() && OnClient())
-		setLocal(FALSE);
 	
 	return					TRUE;
 }
@@ -741,16 +698,9 @@ void CActor::net_Relcase	(CObject* O)
 	HUD().net_Relcase	(O);
 }
 
-BOOL	CActor::net_Relevant		()				// relevant for export to server
-{ 
-	if (OnServer())
-	{
-		return getSVU() | getLocal(); 
-	}
-	else
-	{
-		return Local() & g_Alive();
-	};
+BOOL CActor::net_Relevant()				// relevant for export to server
+{
+	return getSVU() | getLocal();
 };
 
 void	CActor::SetCallbacks()
@@ -861,17 +811,17 @@ void CActor::PH_B_CrPr		()	// actions & operations before physic correction-pred
 	if (g_Alive())
 	{
 		CrPr_SetActivated(true);
-		{		
+		{
 			///////////////////////////////////////////////
-			InterpData* pIStart = &IStart;			
-			pIStart->Pos				= Position();
-			pIStart->Vel				= character_physics_support()->movement()->GetVelocity();
-			pIStart->o_model			= angle_normalize(r_model_yaw);
-			pIStart->o_torso.yaw		= angle_normalize(unaffected_r_torso.yaw);
-			pIStart->o_torso.pitch		= angle_normalize(unaffected_r_torso.pitch);
-			pIStart->o_torso.roll		= angle_normalize(unaffected_r_torso.roll);
+			InterpData* pIStart = &IStart;
+			pIStart->Pos = Position();
+			pIStart->Vel = character_physics_support()->movement()->GetVelocity();
+			pIStart->o_model = angle_normalize(r_model_yaw);
+			pIStart->o_torso.yaw = angle_normalize(unaffected_r_torso.yaw);
+			pIStart->o_torso.pitch = angle_normalize(unaffected_r_torso.pitch);
+			pIStart->o_torso.roll = angle_normalize(unaffected_r_torso.roll);
 			if (pIStart->o_torso.roll > PI)
-					pIStart->o_torso.roll	-= PI_MUL_2;
+				pIStart->o_torso.roll -= PI_MUL_2;
 		}
 		///////////////////////////////////////////////
 		CPHSynchronize* pSyncObj = NULL;
@@ -879,36 +829,24 @@ void CActor::PH_B_CrPr		()	// actions & operations before physic correction-pred
 		if (!pSyncObj) return;
 		pSyncObj->get_State(LastState);
 		///////////////////////////////////////////////
+		net_update_A N_A = NET_A.back();
+		net_update N = NET.back();
 
-		//----------- for E3 -----------------------------
-		if (Local() && OnClient())
-			//------------------------------------------------
+		NET_Last = N;
+		///////////////////////////////////////////////
+		cam_Active()->Set(-unaffected_r_torso.yaw, unaffected_r_torso.pitch, 0);//, unaffected_r_torso.roll);		// set's camera orientation
+		if (!N_A.State.enabled)
 		{
-			PHUnFreeze();
-
-			pSyncObj->set_State(NET_A.back().State);			
+			pSyncObj->set_State(N_A.State);
 		}
 		else
 		{
-			net_update_A N_A = NET_A.back();
-			net_update N = NET.back();
+			PHUnFreeze();
 
-			NET_Last = N;
-			///////////////////////////////////////////////
-			cam_Active()->Set		(-unaffected_r_torso.yaw,unaffected_r_torso.pitch, 0);//, unaffected_r_torso.roll);		// set's camera orientation
-			if (!N_A.State.enabled) 
-			{
-				pSyncObj->set_State(N_A.State);
-			}
-			else
-			{
-				PHUnFreeze();
-				
-				pSyncObj->set_State(N_A.State);
-				
-				g_Physics(N.p_accel, 0.0f, 0.0f);				
-				Position().set(IStart.Pos);
-			};
+			pSyncObj->set_State(N_A.State);
+
+			g_Physics(N.p_accel, 0.0f, 0.0f);
+			Position().set(IStart.Pos);
 		};
 	}
 	else

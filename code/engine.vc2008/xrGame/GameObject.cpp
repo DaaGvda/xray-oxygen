@@ -11,7 +11,7 @@
 #include "level_graph.h"
 #include "ph_shell_interface.h"
 #include "script_game_object.h"
-#include "xrserver_objects_alife.h"
+#include "xrServer_objects_alife.h"
 #include "xrServer_Objects_ALife_Items.h"
 #include "game_cl_base.h"
 #include "object_factory.h"
@@ -23,7 +23,6 @@
 #include "level.h"
 #include "script_callback_ex.h"
 #include "../xrphysics/MathUtils.h"
-#include "game_cl_base_weapon_usage_statistic.h"
 #include "game_level_cross_table.h"
 #include "ai_obstacle.h"
 #include "magic_box3.h"
@@ -313,13 +312,10 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 
 	// Net params
 	setLocal						(E->s_flags.is(M_SPAWN_OBJECT_LOCAL));
-	if (Level().IsDemoPlay()) //&& OnClient())
+	if (Level().IsDemoPlay() && !demo_spectator)
 	{
-		if (!demo_spectator)
-		{
-			setLocal(FALSE);
-		}
-	};
+		setLocal(FALSE);
+	}
 
 	setReady						(TRUE);
 	if (!demo_spectator)
@@ -341,21 +337,11 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 	reinit						();
 	if(!g_dedicated_server)
 		CScriptBinder::reinit	();
-#ifdef DEBUG
-	if(ph_dbg_draw_mask1.test(ph_m1_DbgTrackObject)&&stricmp(PH_DBG_ObjectTrackName(),*cName())==0)
-	{
-		Msg("CGameObject::net_Spawn obj %s After Script Binder reinit %f,%f,%f",PH_DBG_ObjectTrackName(),Position().x,Position().y,Position().z);
-	}
-#endif
 	//load custom user data from server
 	if(!E->client_data.empty())
-	{	
-//		Msg				("client data is present for object [%d][%s], load is processed",ID(),*cName());
+	{
 		IReader			ireader = IReader(&*E->client_data.begin(), E->client_data.size());
 		net_Load		(ireader);
-	}
-	else {
-//		Msg				("no client data for object [%d][%s], load is skipped",ID(),*cName());
 	}
 
 	// if we have a parent
@@ -400,20 +386,12 @@ BOOL CGameObject::net_Spawn		(CSE_Abstract*	DC)
 
 	spawn_supplies				();
 #ifdef DEBUG
-	if(ph_dbg_draw_mask1.test(ph_m1_DbgTrackObject)&&stricmp(PH_DBG_ObjectTrackName(),*cName())==0)
-	{
-		Msg("CGameObject::net_Spawn obj %s Before CScriptBinder::net_Spawn %f,%f,%f",PH_DBG_ObjectTrackName(),Position().x,Position().y,Position().z);
-	}
 	BOOL ret =CScriptBinder::net_Spawn(DC);
 #else
 	return						(CScriptBinder::net_Spawn(DC));
 #endif
 
 #ifdef DEBUG
-	if(ph_dbg_draw_mask1.test(ph_m1_DbgTrackObject)&&stricmp(PH_DBG_ObjectTrackName(),*cName())==0)
-	{
-		Msg("CGameObject::net_Spawn obj %s Before CScriptBinder::net_Spawn %f,%f,%f",PH_DBG_ObjectTrackName(),Position().x,Position().y,Position().z);
-	}
 	return ret;
 #endif
 }
@@ -423,61 +401,18 @@ void CGameObject::net_Save		(NET_Packet &net_packet)
 	u32							position;
 	net_packet.w_chunk_open16	(position);
 	save						(net_packet);
-
 	// Script Binder Save ---------------------------------------
-#ifdef DEBUG	
-	if (psAI_Flags.test(aiSerialize))	{
-		Msg(">> **** Save script object [%s] *****", *cName());
-		Msg(">> Before save :: packet position = [%u]", net_packet.w_tell());
-	}
-
-#endif
-
 	CScriptBinder::save			(net_packet);
-
-#ifdef DEBUG	
-
-	if (psAI_Flags.test(aiSerialize))	{
-		Msg(">> After save :: packet position = [%u]", net_packet.w_tell());
-	}
-#endif
-
 	// ----------------------------------------------------------
-
 	net_packet.w_chunk_close16	(position);
 }
 
 void CGameObject::net_Load		(IReader &ireader)
 {
 	load					(ireader);
-
 	// Script Binder Load ---------------------------------------
-#ifdef DEBUG	
-	if (psAI_Flags.test(aiSerialize))	{
-		Msg(">> **** Load script object [%s] *****", *cName());
-		Msg(">> Before load :: reader position = [%i]", ireader.tell());
-	}
-
-#endif
-
 	CScriptBinder::load		(ireader);
-
-
-#ifdef DEBUG	
-
-	if (psAI_Flags.test(aiSerialize))	{
-		Msg(">> After load :: reader position = [%i]", ireader.tell());
-	}
-#endif
 	// ----------------------------------------------------------
-#ifdef DEBUG
-	if(ph_dbg_draw_mask1.test(ph_m1_DbgTrackObject)&&stricmp(PH_DBG_ObjectTrackName(),*cName())==0)
-	{
-		Msg("CGameObject::net_Load obj %s (loaded) %f,%f,%f",PH_DBG_ObjectTrackName(),Position().x,Position().y,Position().z);
-	}
-
-#endif
-
 }
 
 void CGameObject::save			(NET_Packet &output_packet) 
@@ -553,7 +488,6 @@ void CGameObject::spawn_supplies()
 
 void CGameObject::setup_parent_ai_locations(bool assign_position)
 {
-//	CGameObject				*l_tpGameObject	= static_cast<CGameObject*>(H_Root());
 	VERIFY					(H_Parent());
 	CGameObject				*l_tpGameObject	= static_cast<CGameObject*>(H_Parent());
 	VERIFY					(l_tpGameObject);
@@ -561,13 +495,6 @@ void CGameObject::setup_parent_ai_locations(bool assign_position)
 	// get parent's position
 	if ( assign_position && use_parent_ai_locations() )
 		Position().set		(l_tpGameObject->Position());
-
-	//if ( assign_position && 
-	//		( use_parent_ai_locations() &&
-	//		!( cast_attachable_item() && cast_attachable_item()->enabled() )
-	//		 ) 
-	//	)
-	//	Position().set		(l_tpGameObject->Position());
 
 	// setup its ai locations
 	if (!UsedAI_Locations())
@@ -580,16 +507,10 @@ void CGameObject::setup_parent_ai_locations(bool assign_position)
 		ai_location().level_vertex	(l_tpGameObject->ai_location().level_vertex_id());
 	else
 		validate_ai_locations	(false);
-//	VERIFY2						(l_tpGameObject->UsedAI_Locations(),*l_tpGameObject->cNameSect());
-//	VERIFY2						(ai().level_graph().valid_vertex_id(l_tpGameObject->ai_location().level_vertex_id()),*cNameSect());
-//	ai_location().level_vertex	(l_tpGameObject->ai_location().level_vertex_id());
-
 	if (ai().game_graph().valid_vertex_id(l_tpGameObject->ai_location().game_vertex_id()))
 		ai_location().game_vertex	(l_tpGameObject->ai_location().game_vertex_id());
 	else
 		ai_location().game_vertex	(ai().cross_table().vertex(ai_location().level_vertex_id()).game_vertex_id());
-//	VERIFY2						(ai().game_graph().valid_vertex_id(l_tpGameObject->ai_location().game_vertex_id()),*cNameSect());
-//	ai_location().game_vertex	(l_tpGameObject->ai_location().game_vertex_id());
 }
 
 u32 CGameObject::new_level_vertex_id			() const

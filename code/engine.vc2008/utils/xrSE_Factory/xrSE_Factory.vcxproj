@@ -474,7 +474,6 @@
     <ClInclude Include="..\..\xrServerEntities\alife_human_brain_inline.h" />
     <ClInclude Include="..\..\xrServerEntities\alife_monster_brain.h" />
     <ClInclude Include="..\..\xrServerEntities\alife_monster_brain_inline.h" />
-    <ClInclude Include="..\..\xrServerEntities\game_base_space.h" />
     <ClInclude Include="..\..\xrServerEntities\inventory_space.h" />
     <ClInclude Include="bone.h" />
     <ClInclude Include="client_id.h" />

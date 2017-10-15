@@ -34,7 +34,6 @@
 #include "../monster_cover_manager.h"
 #include "../monster_home.h"
 #include "../../../inventory.h"
-#include "../../../xrserver.h"
 #include "../ai_monster_squad.h"
 #include "../../../actor.h"
 #include "../../../ai_object_location.h"

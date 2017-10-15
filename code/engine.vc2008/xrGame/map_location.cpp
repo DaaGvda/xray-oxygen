@@ -7,7 +7,7 @@
 #include "../xrEngine/xr_object.h"
 #include "ai_space.h"
 #include "game_graph.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 #include "ui/UIXmlInit.h"
 #include "ui/UIMap.h"

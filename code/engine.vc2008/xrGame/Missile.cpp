@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "missile.h"
-//.#include "WeaponHUD.h"
 #include "../xrphysics/PhysicsShell.h"
 #include "actor.h"
 #include "../xrEngine/CameraBase.h"
-#include "xrserver_objects_alife.h"
+#include "xrServer_objects_alife.h"
 #include "ActorEffector.h"
 #include "level.h"
 #include "xr_level_controller.h"
@@ -18,15 +17,12 @@
 #ifdef DEBUG
 #	include "phdebug.h"
 #endif
-
-
 #define PLAYING_ANIM_TIME 10000
-
 #include "ui/UIProgressShape.h"
 #include "ui/UIXmlInit.h"
 #include "physicsshellholder.h"
 
-CUIProgressShape* g_MissileForceShape = NULL;
+CUIProgressShape* g_MissileForceShape = nullptr;
 
 void create_force_progress()
 {
@@ -146,8 +142,6 @@ void CMissile::OnHiddenItem()
 
 void CMissile::spawn_fake_missile()
 {
-	if (OnClient()) return;
-
 	if (!getDestroy())
 	{
 		CSE_Abstract		*object = Level().spawn_item(
@@ -514,8 +508,6 @@ void CMissile::OnEvent(NET_Packet& P, u16 type)
 				break;
 			}
 			missile->H_SetParent(0,!P.r_eof() && P.r_u8());
-			if (IsFakeMissile && OnClient()) 
-				missile->set_destroy_time(m_dwDestroyTimeMax);
 			break;
 		}
 	}

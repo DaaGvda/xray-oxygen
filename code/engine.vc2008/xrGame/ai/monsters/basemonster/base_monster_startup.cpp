@@ -23,7 +23,6 @@
 #include "../../../../xrServerEntities/xrserver_objects_alife_monsters.h"
 #include "../../../alife_simulator.h"
 #include "../../../alife_object_registry.h"
-#include "../../../xrServer.h"
 #include "../../../inventory_item.h"
 #include "../../../../xrServerEntities/xrServer_objects_ALife.h"
 #include "../../../phMovementControl.h"
@@ -484,11 +483,11 @@ void CBaseMonster::settings_overrides()
 	u32 crc						= crc32(data,sizeof(SMonsterSettings));
 	m_current_settings.create	(crc,1,data);
 }
-
+#include "game_sv_single.h"
 void CBaseMonster::on_before_sell	(CInventoryItem *item)
 {
 	// since there can be only single item in the monster inventory
-	CSE_Abstract					*object	= Level().Server->game->get_entity_from_eid(item->object().ID()); 
+	CSE_Abstract					*object	= Level().Server->ID_to_entity(item->object().ID());
 	VERIFY							(object);
 	CSE_ALifeObject					*alife_object = smart_cast<CSE_ALifeObject*>(object);
 	if (alife_object)

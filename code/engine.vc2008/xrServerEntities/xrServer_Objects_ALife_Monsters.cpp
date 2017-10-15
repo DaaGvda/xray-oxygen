@@ -269,11 +269,8 @@ void CSE_ALifeTraderAbstract::OnChangeProfile(PropValue* sender)
 }
 
 #ifndef AI_COMPILER
-
-
 #ifdef XRGAME_EXPORTS
 
-#include "game_base_space.h"
 #include "Level.h"
 
 #endif

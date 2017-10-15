@@ -17,7 +17,6 @@
 #include "alife_graph_registry.h"
 #include "alife_spawn_registry.h"
 #include "alife_registry_container.h"
-#include "xrServer.h"
 #include "level.h"
 
 using namespace luabind;
@@ -165,6 +164,9 @@ CSE_Abstract *CALifeSimulator__spawn_item		(CALifeSimulator *self, LPCSTR sectio
 	return								(self->spawn_item(section,position,level_vertex_id,game_vertex_id,ALife::_OBJECT_ID(-1)));
 }
 
+#include "sv_idgen.hpp"
+#include "game_sv_single.h"
+
 CSE_Abstract *CALifeSimulator__spawn_item2		(CALifeSimulator *self, LPCSTR section, const Fvector &position, u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id, ALife::_OBJECT_ID id_parent)
 {
 	if (id_parent == ALife::_OBJECT_ID(-1))
@@ -185,7 +187,7 @@ CSE_Abstract *CALifeSimulator__spawn_item2		(CALifeSimulator *self, LPCSTR secti
 	
 	CSE_Abstract						*item = self->spawn_item(section,position,level_vertex_id,game_vertex_id,id_parent,false);
 	item->Spawn_Write					(packet,FALSE);
-	self->server().FreeID				(item->ID,0);
+	m_tID_Generator.vfFreeID			(item->ID,0);
 	F_entity_Destroy					(item);
 
 	ClientID							clientID;
@@ -199,8 +201,6 @@ CSE_Abstract *CALifeSimulator__spawn_item2		(CALifeSimulator *self, LPCSTR secti
 
 CSE_Abstract *CALifeSimulator__spawn_ammo		(CALifeSimulator *self, LPCSTR section, const Fvector &position, u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id, ALife::_OBJECT_ID id_parent, int ammo_to_spawn)
 {
-//	if (id_parent == ALife::_OBJECT_ID(-1))
-//		return							(self->spawn_item(section,position,level_vertex_id,game_vertex_id,id_parent));
 	CSE_ALifeDynamicObject				*object = 0;
 	if (id_parent != ALife::_OBJECT_ID(-1)) {
 		object							= ai().alife().objects().object(id_parent,true);
@@ -233,7 +233,7 @@ CSE_Abstract *CALifeSimulator__spawn_ammo		(CALifeSimulator *self, LPCSTR sectio
 	ammo->a_elapsed						= (u16)ammo_to_spawn;
 
 	item->Spawn_Write					(packet,FALSE);
-	self->server().FreeID				(item->ID,0);
+	m_tID_Generator.vfFreeID			(item->ID,0);
 	F_entity_Destroy					(item);
 
 	ClientID							clientID;

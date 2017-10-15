@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "xrserver.h"
+#include "game_sv_Single.h"
 #include "xrmessages.h"
 
 #if 1//def DEBUG
@@ -10,7 +10,7 @@
 #	include "xrServer_Objects_ALife_Monsters.h"
 #endif
 
-void xrServer::SLS_Default	()
+void game_sv_Single::SLS_Default	()
 {
 	if (game->custom_sls_default()) {
 		game->sls_default	();

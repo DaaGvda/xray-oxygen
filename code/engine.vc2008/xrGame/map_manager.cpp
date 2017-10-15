@@ -8,7 +8,7 @@
 #include "GameObject.h"
 #include "map_location.h"
 #include "GameTaskManager.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "game_object_space.h"
 #include "script_callback_ex.h"
 

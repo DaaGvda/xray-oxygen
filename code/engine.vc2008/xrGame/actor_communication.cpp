@@ -12,7 +12,7 @@
 #include "alife_registry_container.h"
 #include "script_game_object.h"
 #include "game_cl_base.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 #include "alife_registry_wrappers.h"
 #include "map_manager.h"

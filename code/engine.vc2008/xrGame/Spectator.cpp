@@ -106,32 +106,31 @@ void CSpectator::UpdateCL()
 		
 			//-------------------------------------
 			int idx			= 0;
-			game_PlayerState* P = Game().local_player;
-			if (P&&(P->team>=0)&&(P->team<(int)Level().seniority_holder().teams().size()))
-			{
-				const CTeamHierarchyHolder& T		= Level().seniority_holder().team(P->team);
-				for (u32 i=0; i<T.squads().size(); ++i)
-				{
-					const CSquadHierarchyHolder& S = T.squad(i);
-					for (u32 j=0; j<S.groups().size(); ++j)
-					{
-						const CGroupHierarchyHolder& G = S.group(j);
-						for (u32 k=0; k<G.members().size(); ++k)
-						{
-							CActor* A = smart_cast<CActor*>(G.members()[k]);
-							if (A)
-							{
-								if(idx==look_idx)
-								{
-									cam_Update	(A);
-									return;
-								}
-								++idx;
-							}
-						}
-					}
-				}
-			}
+			//if (P&&(P->team>=0)&&(P->team<(int)Level().seniority_holder().teams().size()))
+			//{
+			//	const CTeamHierarchyHolder& T		= Level().seniority_holder().team(P->team);
+			//	for (u32 i=0; i<T.squads().size(); ++i)
+			//	{
+			//		const CSquadHierarchyHolder& S = T.squad(i);
+			//		for (u32 j=0; j<S.groups().size(); ++j)
+			//		{
+			//			const CGroupHierarchyHolder& G = S.group(j);
+			//			for (u32 k=0; k<G.members().size(); ++k)
+			//			{
+			//				CActor* A = smart_cast<CActor*>(G.members()[k]);
+			//				if (A)
+			//				{
+			//					if(idx==look_idx)
+			//					{
+			//						cam_Update	(A);
+			//						return;
+			//					}
+			//					++idx;
+			//				}
+			//			}
+			//		}
+			//	}
+			//}
 			// не найден объект с таким индексом - сбросим на первый объект
 			look_idx = 0;
 			// никого нет за кем смотреть - переключимся на 
@@ -197,7 +196,7 @@ void CSpectator::IR_OnKeyboardHold(int cmd)
 {
 	if (Remote())		return;
 
-	game_PlayerState* PS = Game().local_player;
+	//game_PlayerState* PS = Game().local_player;
 
 	if ((cam_active==eacFreeFly)||(cam_active==eacFreeLook)){
 		CCameraBase* C	= cameras	[cam_active];
@@ -413,10 +412,8 @@ BOOL			CSpectator::net_Spawn(CSE_Abstract*	DC)
 	cameras[cam_active]->Set(-E->o_Angle.y, -E->o_Angle.x, tmp_roll);// set's camera orientation
 	cameras[cam_active]->vPosition.set(E->o_Position);
 
-	if (OnServer())
-	{
-		E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
-	};
+	E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
+	
 	return TRUE;
 };
 

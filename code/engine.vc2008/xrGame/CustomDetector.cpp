@@ -339,36 +339,28 @@ void CCustomDetector::OnMoveToSlot(const SInvItemPlace& prev)
 
 void CCustomDetector::TurnDetectorInternal(bool b)
 {
-	m_bWorking				= b;
-	if(b && m_ui==NULL)
+	m_bWorking = b;
+	if (b && !m_ui)
 	{
-		CreateUI			();
-	}else
-	{
-//.		xr_delete			(m_ui);
+		CreateUI();
 	}
 
-	UpdateNightVisionMode	(b);
+	UpdateNightVisionMode(b);
 }
 
-
-
-#include "game_base_space.h"
 void CCustomDetector::UpdateNightVisionMode(bool b_on)
 {
 }
 
-BOOL CAfList::feel_touch_contact	(CObject* O)
+BOOL CAfList::feel_touch_contact(CObject* O)
 {
-	TypesMapIt it				= m_TypesMap.find(O->cNameSect());
-
-	bool res					 = (it!=m_TypesMap.end());
-	if(res)
+	bool res = (m_TypesMap.find(O->cNameSect()) != m_TypesMap.end());
+	if (res)
 	{
-		CArtefact*	pAf				= smart_cast<CArtefact*>(O);
-		
-		if(pAf->GetAfRank()>m_af_rank)
+		CArtefact*	pAf = smart_cast<CArtefact*>(O);
+
+		if (pAf->GetAfRank() > m_af_rank)
 			res = false;
 	}
-	return						res;
+	return res;
 }

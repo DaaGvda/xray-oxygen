@@ -153,25 +153,25 @@ IC	inventory::upgrade::Manager	&CALifeSimulatorBase::inventory_upgrade_manager		
 	return						(*m_upgrade_manager);
 }
 
-IC	CRandom32							&CALifeSimulatorBase::random				()
+IC	CRandom32					&CALifeSimulatorBase::random				()
 {
 	return						(m_random);
 }
 
-IC	xrServer							&CALifeSimulatorBase::server				() const
+IC	game_sv_Single				&CALifeSimulatorBase::server				() const
 {
 	VERIFY						(m_server);
 	return						(*m_server);
 }
 
-IC	CALifeTimeManager					&CALifeSimulatorBase::time_manager			()
+IC	CALifeTimeManager			&CALifeSimulatorBase::time_manager			()
 {
 	VERIFY						(initialized());
 	VERIFY						(m_time_manager);
 	return						(*m_time_manager);
 }
 
-IC	const CALifeTimeManager				&CALifeSimulatorBase::time_manager			() const
+IC	const CALifeTimeManager		&CALifeSimulatorBase::time_manager			() const
 {
 	VERIFY						(initialized());
 	VERIFY						(m_time_manager);

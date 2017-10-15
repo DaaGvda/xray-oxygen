@@ -55,13 +55,10 @@ void CActor::IR_OnKeyboardPress(int cmd)
 			if(inventory().ActiveItem() && (slot==INV_SLOT_3 || slot==INV_SLOT_2) )
 				mstate_wishful &=~mcSprint;
 			//-----------------------------
-			if (OnServer())
-			{
 				NET_Packet P;
 				P.w_begin(M_PLAYER_FIRE); 
 				P.w_u16(ID());
 				u_EventSend(P);
-			}
 		}break;
 	default:
 		{
@@ -212,7 +209,7 @@ void CActor::IR_OnKeyboardRelease(int cmd)
 		switch(cmd)
 		{
 		case kJUMP:		mstate_wishful &=~mcJump;		break;
-		case kDROP:		if(GAME_PHASE_INPROGRESS == Game().Phase()) g_PerformDrop();				break;
+		case kDROP:		g_PerformDrop();				break;
 		}
 	}
 }

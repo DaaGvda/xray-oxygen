@@ -16,7 +16,7 @@
 using namespace ALife;
 
 /**/
-CALifeInteractionManager::CALifeInteractionManager	(xrServer*server, LPCSTR section) : 
+CALifeInteractionManager::CALifeInteractionManager	(game_sv_Single*server, LPCSTR section) : 
 	CALifeCombatManager			(server,section),
 	CALifeCommunicationManager	(server,section),
 	CALifeSimulatorBase			(server,section)

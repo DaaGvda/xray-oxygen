@@ -405,44 +405,24 @@ void CShootingObject::RenderLight()
 	}
 }
 
-bool CShootingObject::SendHitAllowed		(CObject* pUser)
+bool CShootingObject::SendHitAllowed(CObject* pUser)
 {
 	if (Game().IsServerControlHits())
-		return OnServer();
-
-	if (OnServer())
-	{
-		if (smart_cast<CActor*>(pUser))
-		{
-			if (Level().CurrentControlEntity() != pUser)
-			{
-				return false;
-			}
-		}
 		return true;
-	}
-	else
+
+	if (smart_cast<CActor*>(pUser))
 	{
-		if (smart_cast<CActor*>(pUser))
+		if (Level().CurrentControlEntity() != pUser)
 		{
-			if (Level().CurrentControlEntity() == pUser)
-			{
-				return true;
-			}
+			return false;
 		}
-		return false;
 	}
+	return true;
 };
 
 extern void random_dir(Fvector& tgt_dir, const Fvector& src_dir, float dispersion);
 
-void CShootingObject::FireBullet(const Fvector& pos, 
-								 const Fvector& shot_dir, 
-								 float fire_disp,
-								 const CCartridge& cartridge,
-								 u16 parent_id,
-								 u16 weapon_id,
-								 bool send_hit)
+void CShootingObject::FireBullet(const Fvector& pos, const Fvector& shot_dir, float fire_disp, const CCartridge& cartridge, u16 parent_id, u16 weapon_id, bool send_hit)
 {
 	Fvector dir;
 	random_dir(dir,shot_dir,fire_disp);

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "level.h"
 #include "Level_Bullet_Manager.h"
-#include "xrserver.h"
+#include "game_sv_Single.h"
 #include "game_cl_base.h"
 #include "xrmessages.h"
 #include "../xrEngine/x_ray.h"
@@ -99,6 +99,36 @@ BOOL CLevel::net_Start	( LPCSTR op_server, LPCSTR op_client )
 
 shared_str level_version(const shared_str &server_options);
 shared_str level_name(const shared_str &server_options);
+
+shared_str parse_level_name(const shared_str &server_options)
+{
+	string64			l_name = "";
+	VERIFY(_GetItemCount(*server_options, '/'));
+	return				(_GetItem(*server_options, 0, l_name, '/'));
+}
+
+LPCSTR default_map_version = "1.0";
+LPCSTR map_ver_string = "ver=";
+
+shared_str parse_level_version(const shared_str &server_options)
+{
+	const char* map_ver = strstr(server_options.c_str(), map_ver_string);
+	string128	result_version;
+	if (map_ver)
+	{
+		map_ver += sizeof(map_ver_string);
+		if (strchr(map_ver, '/'))
+			strncpy_s(result_version, map_ver, strchr(map_ver, '/') - map_ver);
+		else
+			xr_strcpy(result_version, map_ver);
+	}
+	else
+	{
+		xr_strcpy(result_version, default_map_version);
+	}
+	return shared_str(result_version);
+}
+
 bool CLevel::net_start1				()
 {
     shared_str serverOption = GamePersistent().GetServerOption();
@@ -110,15 +140,16 @@ bool CLevel::net_start1				()
 		typedef IGame_Persistent::params params;
 		params							&p = g_pGamePersistent->m_game_params;
 		// Connect
-		Server							= xr_new<xrServer>();
+		game_sv_Single* Server = xr_new<game_sv_Single>();
 		
 
 		if (xr_strcmp(p.m_alife,"alife"))
 		{
-			shared_str l_ver			= game_sv_GameState::parse_level_version(serverOption);
+			shared_str l_ver			= "1.0";
 			
-			map_data.m_name				= game_sv_GameState::parse_level_name(serverOption);
-			
+			map_data.m_name				= parse_level_name(serverOption);
+			map_data.m_map_version		= parse_level_version(serverOption);
+
 			if (!g_dedicated_server)
 				g_pGamePersistent->LoadTitle(true, map_data.m_name);
 
@@ -141,14 +172,14 @@ bool CLevel::net_start2				()
 	if (net_start_result_total && serverOption.size())
 	{
 		GameDescriptionData game_descr;
-		if ((m_connect_server_err=Server->Connect(serverOption, game_descr))!=xrServer::ErrNoError)
-		{
-			net_start_result_total = false;
-			Msg				("! Failed to start server.");
-			return true;
-		}
-		Server->SLS_Default		();
-		map_data.m_name			= Server->level_name(serverOption);
+		//if ((m_connect_server_err=Server->Connect(serverOption, game_descr))!=game_sv_Single::ErrNoError)
+		//{
+		//	net_start_result_total = false;
+		//	Msg				("! Failed to start server.");
+		//	return true;
+		//}
+		//Server->SLS_Default		();
+		map_data.m_name			= parse_level_name(serverOption);
 		if (!g_dedicated_server)
 			g_pGamePersistent->LoadTitle(true, map_data.m_name);
 	}
@@ -160,16 +191,16 @@ bool CLevel::net_start3				()
 	if(!net_start_result_total) return true;
 	//add server port if don't have one in options
     shared_str& clientOption = GamePersistent().GetClientOption();
-	if (!strstr(clientOption.c_str(), "port=") && Server)
+	if (!strstr(clientOption.c_str(), "port="))
 	{
-		string64	PortStr;
-		xr_sprintf(PortStr, "/port=%d", Server->GetPort());
+		//string64	PortStr;
+		//xr_sprintf(PortStr, "/port=%d", Server->GetPort());
 
-		string4096	tmp;
-		xr_strcpy(tmp, clientOption.c_str());
-		xr_strcat(tmp, PortStr);
+		//string4096	tmp;
+		//xr_strcpy(tmp, clientOption.c_str());
+		//xr_strcat(tmp, PortStr);
 		
-        GamePersistent().SetClientOption(tmp);
+        //GamePersistent().SetClientOption(tmp);
 	}
 	//add password string to client, if don't have one
     shared_str serverOption = GamePersistent().GetServerOption();
@@ -223,13 +254,8 @@ bool CLevel::net_start5				()
 	{
 		NET_Packet		NP;
 		NP.w_begin		(M_CLIENTREADY);
-		Game().local_player->net_Export(NP, TRUE);
+		//Game().local_player->net_Export(NP, TRUE);
 		Send			(NP,net_flags(TRUE,TRUE));
-
-		if (OnClient() && Server)
-		{
-			Server->SLS_Clear();
-		};
 	};
 	return true;
 }
@@ -306,17 +332,14 @@ void CLevel::InitializeClientGame	(NET_Packet& P)
 {
 	string256 game_type_name;
 	P.r_stringZ(game_type_name);
-	if(game && !xr_strcmp(game_type_name, game->type_name()) )
+	//if(game && !xr_strcmp(game_type_name, game->type_name()) )
 		return;
 	
 	xr_delete(game);
-#ifdef DEBUG
-	Msg("- Game configuring : Started ");
-#endif // #ifdef DEBUG
-	CLASS_ID clsid			= game_GameState::getCLASS_ID(game_type_name,false);
-	game					= smart_cast<game_cl_GameState*> ( NEW_INSTANCE ( clsid ) );
-	game->set_type_name		(game_type_name);
-	game->Init				();
+	//CLASS_ID clsid			= game_GameState::getCLASS_ID(game_type_name,false);
+	//game					= smart_cast<game_cl_GameState*> ( NEW_INSTANCE ( clsid ) );
+	//game->set_type_name		(game_type_name);
+	//game->Init				();
 	m_bGameConfigStarted	= TRUE;
 	
 	R_ASSERT				(Load_GameSpecific_After ());

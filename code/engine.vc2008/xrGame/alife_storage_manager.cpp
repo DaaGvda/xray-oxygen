@@ -15,7 +15,6 @@
 #include "alife_graph_registry.h"
 #include "alife_group_registry.h"
 #include "alife_registry_container.h"
-#include "xrserver.h"
 #include "level.h"
 #include "../xrEngine/x_ray.h"
 #include "saved_game_wrapper.h"
@@ -93,7 +92,7 @@ void CALifeStorageManager::save	(LPCSTR save_name_no_check, bool update_name)
 	if (!update_name)
 		xr_strcpy					(m_save_name,save);
 }
-
+#include "sv_idgen.hpp"
 void CALifeStorageManager::load	(void *buffer, const u32 &buffer_size, LPCSTR file_name)
 {
 	IReader						source(buffer,buffer_size);
@@ -110,7 +109,7 @@ void CALifeStorageManager::load	(void *buffer, const u32 &buffer_size, LPCSTR fi
 	CALifeObjectRegistry::OBJECT_REGISTRY::iterator	I;
 	for (I = B; I != E; ++I) {
 		ALife::_OBJECT_ID		id = (*I).second->ID;
-		(*I).second->ID			= server().PerformIDgen(id);
+		(*I).second->ID			= m_tID_Generator.tfGetID(id);
 		VERIFY					(id == (*I).second->ID);
 		register_object			((*I).second,false);
 	}

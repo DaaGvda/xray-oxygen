@@ -26,12 +26,9 @@
 #	include "PHDebug.h"
 #endif
 
-//#include "Physics.h"
 #include "../xrphysics/MathUtils.h"
-//#include "../xrphysics/phvalidevalues.h"
 #include "../xrphysics/iActivationShape.h"
 #include "../xrphysics/iphworld.h"
-#include "game_base_space.h"
 #include "profiler.h"
 
 #include "../Include/xrRender/Kinematics.h"
@@ -363,30 +360,25 @@ void CExplosive::Explode()
 	//осколки
 	//////////////////////////////
 	//-------------------------------------
-	bool SendHits = false;
-	if (OnServer()) SendHits = true;
-	else SendHits = false;
+	bool SendHits = true;
 
+	for (int i = 0; i < m_iFragsNum; ++i)
+	{
+		frag_dir.random_dir();
+		frag_dir.normalize();
 
-	for(int i = 0; i < m_iFragsNum; ++i){
-		frag_dir.random_dir	();
-		frag_dir.normalize	();
-		
 		CCartridge cartridge;
-		cartridge.param_s.kDist				= 1.f;
-		cartridge.param_s.kHit				= 1.f;
-//.		cartridge.param_s.kCritical			= 1.f;
-		cartridge.param_s.kImpulse			= 1.f;
-		cartridge.param_s.kAP				= 1.f;
-		cartridge.param_s.fWallmarkSize		= fWallmarkSize;
-		cartridge.bullet_material_idx		= GMLib.GetMaterialIdx(WEAPON_MATERIAL_NAME);
-		cartridge.m_flags.set				(CCartridge::cfTracer,FALSE);
+		cartridge.param_s.kDist = 1.f;
+		cartridge.param_s.kHit = 1.f;
+		cartridge.param_s.kImpulse = 1.f;
+		cartridge.param_s.kAP = 1.f;
+		cartridge.param_s.fWallmarkSize = fWallmarkSize;
+		cartridge.bullet_material_idx = GMLib.GetMaterialIdx(WEAPON_MATERIAL_NAME);
+		cartridge.m_flags.set(CCartridge::cfTracer, FALSE);
 
-		Level().BulletManager().AddBullet(	pos, frag_dir, m_fFragmentSpeed,
-											m_fFragHit, m_fFragHitImpulse, Initiator(),
-											cast_game_object()->ID(), m_eHitTypeFrag, m_fFragsRadius, 
-											cartridge, 1.f, SendHits );
-	}	
+		Level().BulletManager().AddBullet(pos, frag_dir, m_fFragmentSpeed, m_fFragHit, m_fFragHitImpulse, Initiator(),
+			cast_game_object()->ID(), m_eHitTypeFrag, m_fFragsRadius, cartridge, 1.f, SendHits);
+	}
 
 	if (cast_game_object()->Remote()) return;
 	
@@ -479,23 +471,14 @@ void CExplosive::UpdateCL()
 	if(m_fExplodeDuration < 0.f&&m_blasted_objects.empty()) 
 	{
 		m_explosion_flags.set(flExploded,TRUE);
-		
-		
 		StopLight();
-		
-
-//		Msg("---------CExplosive OnAfterExplosion [%d] frame[%d]",cast_game_object()->ID(), Device.dwFrame);
-
 	} 
 	else
 	{		
 		m_fExplodeDuration -= Device.fTimeDelta;
-		if (!m_bHideInExplosion && !m_bAlreadyHidden)
+		if (!m_bHideInExplosion && !m_bAlreadyHidden && (m_fExplodeHideDurationMax <= (m_fExplodeDurationMax - m_fExplodeDuration)))
 		{
-			if (m_fExplodeHideDurationMax <= (m_fExplodeDurationMax - m_fExplodeDuration))
-			{
-				HideExplosive();
-			}
+			HideExplosive();
 		}
 		UpdateExplosionPos();
 		UpdateExplosionParticles();
@@ -524,11 +507,6 @@ void CExplosive::OnAfterExplosion()
 	}
 	//ликвидировать сам объект 
 	if (cast_game_object()->Local()) cast_game_object()->DestroyObject();
-	
-//	NET_Packet			P;
-//	cast_game_object()->u_EventGen			(P,GE_DESTROY,cast_game_object()->ID());
-//	//		Msg					("ge_destroy: [%d] - %s",ID(),*cName());
-//	if (cast_game_object()->Local()) cast_game_object()->u_EventSend			(P);
 }
 void CExplosive::OnBeforeExplosion()
 {
@@ -536,7 +514,6 @@ void CExplosive::OnBeforeExplosion()
 	if (m_bHideInExplosion) 
 	{
 		HideExplosive();
-		//	Msg("---------CExplosive OnBeforeExplosion setVisible(false) [%d] frame[%d]",cast_game_object()->ID(), Device.dwFrame);
 	}
 }
 void CExplosive::HideExplosive()
@@ -572,8 +549,7 @@ void CExplosive::OnEvent(NET_Packet& P, u16 type)
 	}
 }
 
-void CExplosive::ExplodeParams(const Fvector& pos, 
-								const Fvector& dir)
+void CExplosive::ExplodeParams(const Fvector& pos, const Fvector& dir)
 {
 	//m_bReadyToExplode = true;
 	m_explosion_flags.set	(flReadyToExplode,TRUE);
@@ -584,10 +560,8 @@ void CExplosive::ExplodeParams(const Fvector& pos,
 
 void CExplosive::GenExplodeEvent (const Fvector& pos, const Fvector& normal)
 {
-	if (OnClient() || cast_game_object()->Remote()) return;
+	if (cast_game_object()->Remote()) return;
 
-//	if( m_bExplodeEventSent ) 
-//		return;
 	VERIFY(!m_explosion_flags.test(flExplodEventSent));//!m_bExplodeEventSent
 	VERIFY(0xffff != Initiator());
 
@@ -598,7 +572,6 @@ void CExplosive::GenExplodeEvent (const Fvector& pos, const Fvector& normal)
 	P.w_vec3		(normal);
 	cast_game_object()->u_EventSend		(P);
 
-	//m_bExplodeEventSent = true;
 	m_explosion_flags.set(flExplodEventSent,TRUE);
 }
 

@@ -162,20 +162,6 @@ void CArtefact::UpdateCL		()
 
 void CArtefact::Interpolate()
 {
-	if (OnServer())
-		return;
-	
-	net_updateInvData* p = NetSync();
-	while (p->NET_IItem.size() > 1)	//in real no interpolation, just get latest state
-	{
-		p->NET_IItem.pop_front();
-	}
-	inherited::Interpolate();
-	
-	if (p->NET_IItem.size())	
-	{
-		p->NET_IItem.clear(); //same as p->NET_IItem.pop_front();
-	}
 }
 
 void CArtefact::UpdateWorkload		(u32 dt) 

@@ -12,7 +12,7 @@
 #include "../../../../xrphysics/PhysicsShell.h"
 #include "../../../game_graph.h"
 #include "../../../game_level_cross_table.h"
-#include "../../../../xrServerEntities/xrserver_objects_alife_monsters.h"
+#include "../../../../xrServerEntities/xrServer_objects_alife_monsters.h"
 
 #include "ai_rat_space.h"
 #include "../../../../Include/xrRender/KinematicsAnimated.h"

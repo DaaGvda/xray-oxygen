@@ -13,7 +13,6 @@
 #include "game_graph_space.h"
 #include "object_interfaces.h"
 
-class xrServer;
 class CALifeSimulatorHeader;
 class CALifeTimeManager;
 class CALifeSpawnRegistry;
@@ -24,7 +23,7 @@ class CALifeStoryRegistry;
 class CALifeSmartTerrainRegistry;
 class CALifeGroupRegistry;
 class CALifeRegistryContainer;
-
+class game_sv_Single;
 class CSE_Abstract;
 class CSE_ALifeObject;
 class CSE_ALifeDynamicObject;
@@ -37,7 +36,6 @@ namespace inventory { namespace upgrade {
 
 class CALifeSimulatorBase : public IPureDestroyableObject {
 protected:
-	xrServer									*m_server;
 	CALifeSimulatorHeader						*m_header;
 	CALifeTimeManager							*m_time_manager;
 	CALifeSpawnRegistry							*m_spawns;
@@ -74,7 +72,7 @@ public:
 	IC		inventory::upgrade::Manager			&inventory_upgrade_manager	() const;
 
 public:
-												CALifeSimulatorBase			(xrServer *server, LPCSTR section);
+												CALifeSimulatorBase			(game_sv_Single* server, LPCSTR section);
 	virtual										~CALifeSimulatorBase		();
 	virtual	void								destroy						();
 	IC		bool								initialized					() const;
@@ -88,7 +86,6 @@ public:
 	IC		const CALifeSmartTerrainRegistry	&smart_terrains				() const;
 	IC		const CALifeGroupRegistry			&groups						() const;
 	IC		CRandom32							&random						();
-	IC		xrServer							&server						() const;
 	IC		const CALifeTimeManager				&time_manager				() const;
 	template <typename T>
 	IC		T									&registry					(T *t) const;
@@ -100,6 +97,7 @@ protected:
 	virtual void								setup_simulator				(CSE_ALifeObject *object) = 0;
 
 public:
+		IC	game_sv_Single						&CALifeSimulatorBase::		server() const;
 			void								register_object				(CSE_ALifeDynamicObject	*object, bool add_object = false);
 			void								unregister_object			(CSE_ALifeDynamicObject *object, bool alife_query = true);
 			void								release						(CSE_Abstract			*object, bool alife_query = true);
@@ -110,9 +108,9 @@ public:
 			void								append_item_vector			(ALife::OBJECT_VECTOR	&tObjectVector,	ALife::ITEM_P_VECTOR &tItemList);
 			shared_str							level_name					() const;
 			void								on_death					(CSE_Abstract *killed, CSE_Abstract *killer);
-
 public:
 	ALife::ITEM_P_VECTOR						m_temp_item_vector;
+	game_sv_Single*								m_server;
 };
 
 #include "alife_simulator_base_inline.h"

@@ -4,7 +4,6 @@
 #include "xrmessages.h"
 #include "../xrEngine/bone.h"
 #include "actor.h"
-#include "game_base_space.h"
 #include "Hit.h"
 #include "../xrengine/xr_collide_form.h"
 

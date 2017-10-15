@@ -381,9 +381,6 @@
     <ClInclude Include="..\..\xrServerEntities\alife_monster_brain_inline.h">
       <Filter>ServerStuff\Common\ALifeStuff\monster_brain</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\xrServerEntities\game_base_space.h">
-      <Filter>ServerStuff\Common\GameStuff</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\xrServerEntities\inventory_space.h">
       <Filter>ServerStuff\Common\GameStuff</Filter>
     </ClInclude>

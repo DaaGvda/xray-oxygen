@@ -9,7 +9,7 @@
 #include "hit.h"
 #include "PHDestroyable.h"
 #include "Car.h"
-#include "xrserver_objects_alife_monsters.h"
+#include "xrServer_objects_alife_monsters.h"
 #include "CameraLook.h"
 #include "CameraFirstEye.h"
 #include "effectorfall.h"
@@ -23,7 +23,6 @@
 #include "UIGameCustom.h"
 #include "../xrphysics/matrix_utils.h"
 #include "clsid_game.h"
-#include "game_cl_base_weapon_usage_statistic.h"
 #include "Grenade.h"
 #include "Torch.h"
 
@@ -38,7 +37,6 @@
 #include "ai_space.h"
 #include "trade.h"
 #include "inventory.h"
-//#include "Physics.h"
 #include "level.h"
 #include "GamePersistent.h"
 #include "game_cl_base.h"
@@ -117,9 +115,8 @@ CActor::CActor() : CEntityAlive(),current_ik_cam_shift(0)
 	fPrevCamPos				= 0.0f;
 	vPrevCamDir.set			(0.f,0.f,1.f);
 	fCurAVelocity			= 0.0f;
-	// ���������
+	// Раскачка
 	pCamBobbing				= 0;
-
 
 	r_torso.yaw				= 0;
 	r_torso.pitch			= 0;
@@ -588,41 +585,38 @@ void CActor::Die(CObject* who)
 {
 	inherited::Die(who);
 
-	if (OnServer())
+	u16 I = inventory().FirstSlot();
+	u16 E = inventory().LastSlot();
+
+	for (; I <= E; ++I)
 	{
-		u16 I = inventory().FirstSlot();
-		u16 E = inventory().LastSlot();
-
-		for (; I <= E; ++I)
+		PIItem item_in_slot = inventory().ItemFromSlot(I);
+		if (I == inventory().GetActiveSlot())
 		{
-			PIItem item_in_slot = inventory().ItemFromSlot(I);
-			if (I == inventory().GetActiveSlot())
-			{
-				if (item_in_slot)
-				{
-					CGrenade* grenade = smart_cast<CGrenade*>(item_in_slot);
-					if (grenade)
-						grenade->DropGrenade();
-					else
-						item_in_slot->SetDropManual(TRUE);
-				};
-				continue;
-			}
-			else
-			{
-				CCustomOutfit *pOutfit = smart_cast<CCustomOutfit *> (item_in_slot);
-				if (pOutfit) continue;
-			};
 			if (item_in_slot)
-				inventory().Ruck(item_in_slot);
+			{
+				CGrenade* grenade = smart_cast<CGrenade*>(item_in_slot);
+				if (grenade)
+					grenade->DropGrenade();
+				else
+					item_in_slot->SetDropManual(TRUE);
+			};
+			continue;
+		}
+		else
+		{
+			CCustomOutfit *pOutfit = smart_cast<CCustomOutfit *> (item_in_slot);
+			if (pOutfit) continue;
 		};
-
-
-		///!!! ������ �����
-		TIItemContainer &l_blist = inventory().m_belt;
-		while (!l_blist.empty())
-			inventory().Ruck(l_blist.front());
+		if (item_in_slot)
+			inventory().Ruck(item_in_slot);
 	};
+
+
+	///!!! ������ �����
+	TIItemContainer &l_blist = inventory().m_belt;
+	while (!l_blist.empty())
+		inventory().Ruck(l_blist.front());
 
 	if (!g_dedicated_server)
 	{
@@ -913,8 +907,7 @@ void CActor::set_state_box(u32	mstate)
 }
 void CActor::shedule_Update	(u32 DT)
 {
-	setSVU							(OnServer());
-//.	UpdateInventoryOwner			(DT);
+	setSVU(true);
 
 	if(IsFocused())
 	{

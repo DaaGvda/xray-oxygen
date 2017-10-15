@@ -56,12 +56,11 @@ bool CEatableItem::Useful() const
 	return true;
 }
 
-void CEatableItem::OnH_A_Independent() 
+void CEatableItem::OnH_A_Independent()
 {
 	inherited::OnH_A_Independent();
-	if(!Useful()) {
-		if (object().Local() && OnServer())	object().DestroyObject	();
-	}	
+	if (!Useful() && object().Local())
+		object().DestroyObject();
 }
 
 void CEatableItem::OnH_B_Independent(bool just_before_destroy)
@@ -98,13 +97,10 @@ bool CEatableItem::UseBy (CEntityAlive* entity_alive)
 		}
 	}
 
-	if (OnServer())
-	{
-		NET_Packet				tmp_packet;
-		CGameObject::u_EventGen	(tmp_packet, GEG_PLAYER_USE_BOOSTER, entity_alive->ID());
-		tmp_packet.w_u16		(object_id());
-		Level().Send			(tmp_packet);
-	}
+	NET_Packet				tmp_packet;
+	CGameObject::u_EventGen	(tmp_packet, GEG_PLAYER_USE_BOOSTER, entity_alive->ID());
+	tmp_packet.w_u16		(object_id());
+	Level().Send			(tmp_packet);
 	
 	if(m_iPortionsNum > 0)
 		--m_iPortionsNum;

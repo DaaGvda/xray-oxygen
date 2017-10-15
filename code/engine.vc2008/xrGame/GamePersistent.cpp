@@ -7,10 +7,8 @@
 #include "profiler.h"
 #include "MainMenu.h"
 #include "UICursor.h"
-#include "game_base_space.h"
 #include "level.h"
 #include "ParticlesObject.h"
-#include "game_base_space.h"
 #include "stalker_animation_data_storage.h"
 #include "stalker_velocity_holder.h"
 
@@ -26,7 +24,7 @@
 
 #include "holder_custom.h"
 #include "game_cl_base.h"
-#include "xrserver_objects_alife_monsters.h"
+#include "xrServer_objects_alife_monsters.h"
 #include "../xrServerEntities/xrServer_Object_Base.h"
 #include "UI/UIGameTutorial.h"
 
@@ -623,7 +621,7 @@ void CGamePersistent::OnFrame	()
 }
 
 #include "game_sv_single.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "UIGameCustom.h"
 #include "ui/UIMainIngameWnd.h"
 #include "ui/UIPdaWnd.h"
@@ -651,7 +649,7 @@ void CGamePersistent::OnEvent(EVENT E, u64 P1, u64 P2)
 		LPSTR		saved_name	= (LPSTR)(P1);
 
 		Level().remove_objects	();
-		game_sv_Single			*game = smart_cast<game_sv_Single*>(Level().Server->game);
+		game_sv_Single			*game = smart_cast<game_sv_Single*>(Level().game);
 		R_ASSERT				(game);
 		game->restart_simulator	(saved_name);
 		xr_free					(saved_name);

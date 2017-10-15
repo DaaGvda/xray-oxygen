@@ -276,16 +276,13 @@ void CActor::Feel_Grenade_Update( float rad )
 	q_nearest.clear();
 	g_pGameLevel->ObjectSpace.GetNearest( q_nearest, pos_actor, rad, NULL );
 
-	xr_vector<CObject*>::iterator	it_b = q_nearest.begin();
-	xr_vector<CObject*>::iterator	it_e = q_nearest.end();
-
 	// select only grenade
-	for ( ; it_b != it_e; ++it_b )
+	for (auto it_b: q_nearest)
 	{
-		if ((*it_b)->getDestroy())
+		if (it_b->getDestroy())
 			continue;					// Don't touch candidates for destroy
 
-		CGrenade* grn = smart_cast<CGrenade*>( *it_b );
+		CGrenade* grn = smart_cast<CGrenade*>(it_b);
 		if((!grn || grn->Initiator() == ID() || grn->Useful()) || grn->time_from_begin_throw() < m_fFeelGrenadeTime)
 			continue;
 

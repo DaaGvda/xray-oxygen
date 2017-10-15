@@ -1,5 +1,5 @@
-#ifndef XRSERVER_MAP_SYNC_H
-#define XRSERVER_MAP_SYNC_H
+#ifndef xrServer_MAP_SYNC_H
+#define xrServer_MAP_SYNC_H
 
 //this is a response tag that server puts in the first byte of response packet.
 enum MapSyncResponse
@@ -9,4 +9,4 @@ enum MapSyncResponse
 	YouHaveOtherMap		= 2			// in this case, client has other map
 }; //enum MapSyncResponse
 
-#endif //XRSERVER_MAP_SYNC_H
+#endif //xrServer_MAP_SYNC_H

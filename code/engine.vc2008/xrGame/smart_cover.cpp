@@ -77,11 +77,7 @@ cover::cover					(
 		Fvector					position = this->fov_position(**J);
 		position.y				+= 2.0f;
 		u32						level_vertex_id = graph.vertex_id(position);
-#ifdef _M_X64
-#	pragma todo("FX to XXX: fixed graph_vertex position!!!")
-#else
 		VERIFY2(graph.valid_vertex_id(level_vertex_id), make_string("invalid vertex id: smart cover[%s], loophole [%s]", m_object.cName().c_str(), (*J)->id().c_str()));
-#endif
 		vertex					(**J, (*i).second);
 		const_cast<loophole*&>((*i).first) = *J;
 	}
@@ -102,12 +98,7 @@ void cover::vertex				(smart_cover::loophole const &loophole, smart_cover::looph
 	Fvector						pos = fov_position(loophole);
 	pos.y						+= 2.0f;
 	loophole_data.m_level_vertex_id	= graph.vertex_id(pos);
-
-#ifdef _M_X64
-#	pragma todo("FX to XXX: fixed graph_vertex position!!!")
-#else
 	VERIFY2(graph.valid_vertex_id(loophole_data.m_level_vertex_id), make_string("invalid vertex id: smart cover[%s], loophole [%s]", m_object.cName().c_str(), loophole.id().c_str()));
-#endif
 	typedef loophole::ActionList::const_iterator const_iterator;
 	const_iterator				I = loophole.actions().begin();
 	const_iterator				E = loophole.actions().end();
@@ -116,11 +107,7 @@ void cover::vertex				(smart_cover::loophole const &loophole, smart_cover::looph
 			Fvector				pos = position((*I).second->target_position());
 			pos.y				+= 2.0f;
 			u32					level_vertex_id = graph.vertex_id(pos);
-#ifdef _M_X64
-#	pragma todo("FX to XXX: fixed graph_vertex position!!!")
-#else
 			VERIFY2(graph.valid_vertex_id(level_vertex_id), make_string("invalid vertex id: loophole [%s]", loophole.id().c_str()));
-#endif
 			loophole_data.m_action_vertices.push_back(std::make_pair((*I).first, level_vertex_id));
 		}
 }

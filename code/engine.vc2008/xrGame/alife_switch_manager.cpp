@@ -7,16 +7,15 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "game_sv_single.h"
 #include "alife_switch_manager.h"
 #include "xrServer_Objects_ALife.h"
 #include "alife_graph_registry.h"
 #include "alife_object_registry.h"
 #include "alife_schedule_registry.h"
 #include "game_level_cross_table.h"
-#include "xrserver.h"
 #include "ai_space.h"
 #include "level_graph.h"
-
 #ifdef DEBUG
 #	include "level.h"
 #endif // DEBUG
@@ -24,9 +23,9 @@
 using namespace ALife;
 
 struct remove_non_savable_predicate {
-	xrServer			*m_server;
+	game_sv_Single		*m_server;
 
-	IC		 remove_non_savable_predicate(xrServer *server)
+	IC		 remove_non_savable_predicate(game_sv_Single *server)
 	{
 		VERIFY			(server);
 		m_server		= server;
@@ -34,7 +33,7 @@ struct remove_non_savable_predicate {
 
 	IC	bool operator()	(const ALife::_OBJECT_ID &id) const
 	{
-		CSE_Abstract	*object = m_server->game->get_entity_from_eid(id);
+		CSE_Abstract	*object = m_server->ID_to_entity(id);
 		VERIFY			(object);
 		CSE_ALifeObject	*alife_object = smart_cast<CSE_ALifeObject*>(object);
 		VERIFY			(alife_object);
@@ -55,22 +54,19 @@ void CALifeSwitchManager::add_online(CSE_ALifeDynamicObject *object, bool update
 
 	NET_Packet						tNetPacket;
 	CSE_Abstract					*l_tpAbstract = smart_cast<CSE_Abstract*>(object);
-	server().entity_Destroy			(l_tpAbstract);
+	F_entity_Destroy				(l_tpAbstract);
 	object->s_flags.or				(M_SPAWN_UPDATE);
 	ClientID						clientID;
-	clientID.set					(server().GetServerClient() ? server().GetServerClient()->ID.value() : 0);
+	clientID.set					(0);
 	server().Process_spawn			(tNetPacket,clientID,FALSE,l_tpAbstract);
 	object->s_flags.and				(u16(-1) ^ M_SPAWN_UPDATE);
 	R_ASSERT3						(!object->used_ai_locations() || ai().level_graph().valid_vertex_id(object->m_tNodeID),"Invalid vertex for object ",object->name_replace());
 
-#ifdef DEBUG
-	if (psAI_Flags.test(aiALife))
-		Msg							("[LSS] Spawning object [%s][%s][%d]",object->name_replace(),*object->s_name,object->ID);
-#endif
-
 	object->add_online				(update_registries);
 	STOP_PROFILE
 }
+#include "sv_idgen.hpp"
+#include "../xrNetServer/NET_Messages.h"
 
 void CALifeSwitchManager::remove_online(CSE_ALifeDynamicObject *object, bool update_registries)
 {
@@ -80,26 +76,15 @@ void CALifeSwitchManager::remove_online(CSE_ALifeDynamicObject *object, bool upd
 	m_saved_chidren				= object->children;
 	CSE_ALifeTraderAbstract		*inventory_owner = smart_cast<CSE_ALifeTraderAbstract*>(object);
 	if (inventory_owner) {
-		m_saved_chidren.erase	(
-			std::remove_if(
-				m_saved_chidren.begin(),
-				m_saved_chidren.end(),
-				remove_non_savable_predicate(&server())
-			),
-			m_saved_chidren.end()
-		);
+		m_saved_chidren.erase(std::remove_if(m_saved_chidren.begin(), m_saved_chidren.end(), 
+			remove_non_savable_predicate(&server())), m_saved_chidren.end());
 	}
 
 	server().Perform_destroy	(object,net_flags(TRUE,TRUE));
 	VERIFY						(object->children.empty());
 
 	_OBJECT_ID					object_id = object->ID;
-	object->ID					= server().PerformIDgen(object_id);
-
-#ifdef DEBUG
-	if (psAI_Flags.test(aiALife))
-		Msg						("[LSS] Destroying object [%s][%s][%d]",object->name_replace(),*object->s_name,object->ID);
-#endif
+	object->ID					= m_tID_Generator.tfGetID(object_id);
 
 	object->add_offline			(m_saved_chidren,update_registries);
 	STOP_PROFILE
@@ -108,10 +93,6 @@ void CALifeSwitchManager::remove_online(CSE_ALifeDynamicObject *object, bool upd
 void CALifeSwitchManager::switch_online(CSE_ALifeDynamicObject *object)
 {
 	START_PROFILE("ALife/switch/switch_online")
-#ifdef DEBUG
-//	if (psAI_Flags.test(aiALife))
-		Msg						("[LSS][%d] Going online [%d][%s][%d] ([%f][%f][%f] : [%f][%f][%f]), on '%s'",Device.dwFrame,Device.dwTimeGlobal,object->name_replace(), object->ID,VPUSH(graph().actor()->o_Position),VPUSH(object->o_Position), "*SERVER*");
-#endif
 	object->switch_online		();
 	STOP_PROFILE
 }
@@ -119,10 +100,6 @@ void CALifeSwitchManager::switch_online(CSE_ALifeDynamicObject *object)
 void CALifeSwitchManager::switch_offline(CSE_ALifeDynamicObject *object)
 {
 	START_PROFILE("ALife/switch/switch_offline")
-#ifdef DEBUG
-//	if (psAI_Flags.test(aiALife))
-		Msg							("[LSS][%d] Going offline [%d][%s][%d] ([%f][%f][%f] : [%f][%f][%f]), on '%s'",Device.dwFrame,Device.dwTimeGlobal,object->name_replace(), object->ID,VPUSH(graph().actor()->o_Position),VPUSH(object->o_Position), "*SERVER*");
-#endif
 	object->switch_offline			();
 	STOP_PROFILE
 }

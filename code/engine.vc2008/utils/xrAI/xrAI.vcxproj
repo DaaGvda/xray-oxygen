@@ -736,7 +736,6 @@
     <ClInclude Include="bone.h" />
     <ClInclude Include="ChooseTypes.h" />
     <ClInclude Include="PropertiesListHelper.h" />
-    <ClInclude Include="..\..\xrServerEntities\game_base_space.h" />
     <ClInclude Include="..\..\xrServerEntities\PHNetState.h" />
     <ClInclude Include="..\..\xrServerEntities\PHSynchronize.h" />
     <ClInclude Include="..\..\xrServerEntities\xrMessages.h" />

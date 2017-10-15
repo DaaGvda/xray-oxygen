@@ -3,7 +3,7 @@
 //#include "PhysicsShell.h"
 #include "../xrphysics/physicsshell.h"
 #include "phsynchronize.h"
-#include "xrserver_objects_alife.h"
+#include "xrServer_objects_alife.h"
 #include "../Include/xrRender/Kinematics.h"
 #include "../xrEngine/xr_collide_form.h"
 

@@ -3,6 +3,7 @@
 #include "Level.h"
 #include "game_cl_base.h"
 
+#pragma todo("FX to FX: Remove demoplay!")
 demoplay_control::user_callback_t demoplay_control::no_user_callback;
 
 demoplay_control::demoplay_control()
@@ -78,85 +79,9 @@ void demoplay_control::stop_rewind()
 
 void demoplay_control::activate_filer(EAction const action, shared_str const & param)
 {
-	m_action_param_str	= param;
-	m_current_action	= action;
-	message_filter* tmp_msg_filter = Level().GetMessageFilter();
-	R_ASSERT2(tmp_msg_filter, "can't get message filter object");
-	
-	switch (action)
-	{
-	case on_round_start:
-		{
-			tmp_msg_filter->filter(M_GAMEMESSAGE, GAME_EVENT_ROUND_STARTED,
-				m_onround_start);
-		}break;
-	case on_kill:
-		{
-			tmp_msg_filter->filter(M_GAMEMESSAGE, GAME_EVENT_PLAYER_KILLED,
-				m_on_kill);
-		}break;
-	case on_die:
-		{
-			tmp_msg_filter->filter(M_GAMEMESSAGE, GAME_EVENT_PLAYER_KILLED,
-				m_on_die);
-		}break;
-	case on_artefactdelivering:
-		{
-			tmp_msg_filter->filter(M_GAMEMESSAGE, GAME_EVENT_ARTEFACT_ONBASE,
-				m_on_artefactdelivering);
-		}break;
-	case on_artefactcapturing:
-		{
-			tmp_msg_filter->filter(M_GAMEMESSAGE, GAME_EVENT_ARTEFACT_TAKEN,
-				m_on_artefactcapturing);
-		}break;
-	case on_artefactloosing:
-		{
-			tmp_msg_filter->filter(M_GAMEMESSAGE, GAME_EVENT_ARTEFACT_DROPPED,
-				m_on_artefactloosing);
-		}break;
-	default:
-		{
-			FATAL("unknown action to filter");
-		}
-	}; //switch (action)
 }
 void demoplay_control::deactivate_filter()
 {
-	message_filter* tmp_msg_filter = Level().GetMessageFilter();
-	R_ASSERT2(tmp_msg_filter, "can't get message filter object");
-	
-	switch (m_current_action)
-	{
-	case on_round_start:
-		{
-			tmp_msg_filter->remove_filter(M_GAMEMESSAGE, GAME_EVENT_ROUND_STARTED);
-		}break;
-	case on_kill:
-		{
-			tmp_msg_filter->remove_filter(M_GAMEMESSAGE, GAME_EVENT_PLAYER_KILLED);
-		}break;
-	case on_die:
-		{
-			tmp_msg_filter->remove_filter(M_GAMEMESSAGE, GAME_EVENT_PLAYER_KILLED);
-		}break;
-	case on_artefactdelivering:
-		{
-			tmp_msg_filter->remove_filter(M_GAMEMESSAGE, GAME_EVENT_ARTEFACT_ONBASE);
-		}break;
-	case on_artefactcapturing:
-		{
-			tmp_msg_filter->remove_filter(M_GAMEMESSAGE, GAME_EVENT_ARTEFACT_TAKEN);
-		}break;
-	case on_artefactloosing:
-		{
-			tmp_msg_filter->remove_filter(M_GAMEMESSAGE, GAME_EVENT_ARTEFACT_DROPPED);
-		}break;
-	default:
-		{
-			FATAL("unknown action to remove filter");
-		}
-	}; //switch (action)
 }
 void demoplay_control::process_action()
 {
@@ -193,15 +118,6 @@ void __stdcall	demoplay_control::on_kill_impl(u32 message, u32 subtype, NET_Pack
 	packet.r_u8();	//kill type
 	packet.r_u16();	//killed_id
 	u16 killer_id	= packet.r_u16();
-	game_PlayerState* killerps = Game().GetPlayerByGameID(killer_id);
-	if (!killerps)
-		return;
-
-	if (strstr(killerps->getName(), m_action_param_str.c_str()))
-	{
-		process_action();
-		return;
-	}
 }
 void __stdcall	demoplay_control::on_die_impl(u32 message, u32 subtype, NET_Packet & packet)
 {
@@ -219,15 +135,6 @@ void __stdcall	demoplay_control::on_die_impl(u32 message, u32 subtype, NET_Packe
 	}
 	packet.r_u8(); //kill type
 	u16 killed_id	= packet.r_u16();
-	game_PlayerState* killedps = Game().GetPlayerByGameID(killed_id);
-	if (!killedps)
-		return;
-
-	if (strstr(killedps->getName(), m_action_param_str.c_str()))
-	{
-		process_action();
-		return;
-	}
 }
 void __stdcall	demoplay_control::on_artefactdelivering_impl(u32 message, u32 subtype, NET_Packet & packet)
 {

@@ -1,15 +1,13 @@
 #include "stdafx.h"
 #include "entity.h"
-#include "xrserver_objects.h"
+#include "xrServer_objects.h"
 #include "level.h"
 #include "xrmessages.h"
 #include "game_cl_base.h"
 #include "net_queue.h"
-//#include "Physics.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "Actor.h"
 #include "Artefact.h"
-#include "game_cl_base_weapon_usage_statistic.h"
 #include "ai_space.h"
 #include "saved_game_wrapper.h"
 #include "level_graph.h"
@@ -118,13 +116,11 @@ void CLevel::ClientReceive()
 			}break;
 		case M_UPDATE:
 			{
-				game->net_import_update	(*P);
+			//	game->net_import_update	(*P);
 			}break;
 		case M_UPDATE_OBJECTS:
 			{
 				Objects.net_Import		(P);
-
-				if (OnClient()) UpdateDeltaUpd(timeServer());
 				IClientStatistic pStat = Level().GetStatistic();
 				u32 dTime = 0;
 				
@@ -145,12 +141,6 @@ void CLevel::ClientReceive()
 			}break;
 		case M_CL_UPDATE:
 			{
-				/*if (!game_configured)
-				{
-					Msg("! WARNING: ignoring game event [%d] - game not configured...", m_type);
-					break;
-				}*/
-				if (OnClient()) break;
 				P->r_u16		(ID);
 				u32 Ping = P->r_u32();
 				CGameObject*	O	= smart_cast<CGameObject*>(Objects.net_Find		(ID));
@@ -204,7 +194,7 @@ void CLevel::ClientReceive()
 			InitializeClientGame	(*P);
 			break;
 		case M_SV_CONFIG_GAME:
-			game->net_import_state(*P);
+			//game->net_import_state(*P);
 			break;
 		case M_SV_CONFIG_FINISHED:
 			{
@@ -268,17 +258,17 @@ void CLevel::ClientReceive()
 		case M_CHAT_MESSAGE:
 			{
 				if (!game) break;
-				Game().OnChatMessage(P);
+			//	Game().OnChatMessage(P);
 			}break;
 		case M_CLIENT_WARN:
 			{
 				if (!game) break;
-				Game().OnWarnMessage(P);
+			//	Game().OnWarnMessage(P);
 			}break;
 		case M_REMOTE_CONTROL_AUTH:
 		case M_REMOTE_CONTROL_CMD:
 			{
-				Game().OnRadminMessage(m_type, P);
+			//	Game().OnRadminMessage(m_type, P);
 			}break;
 		case M_SV_MAP_NAME:
 			{
@@ -290,44 +280,29 @@ void CLevel::ClientReceive()
 		case M_CHANGE_LEVEL_GAME:
 			{
 				Msg("- M_CHANGE_LEVEL_GAME Received");
+                shared_str serverOption = GamePersistent().GetServerOption();
+				const char* m_SO = serverOption.c_str();
+				m_SO = strchr(m_SO, '/'); if (m_SO) m_SO++;
+				m_SO = strchr(m_SO, '/'); 
 
-				if (OnClient())
+				shared_str LevelName;
+				shared_str LevelVersion;
+				shared_str GameType;
+
+				P->r_stringZ(LevelName);
+				P->r_stringZ(LevelVersion);
+				P->r_stringZ(GameType);
+
+				string4096 NewServerOptions = "";
+				xr_sprintf(NewServerOptions, "%s/%s/%s%s", LevelName.c_str(), GameType.c_str(), map_ver_string, LevelVersion.c_str());
+
+				if (m_SO)
 				{
-					MakeReconnect();
+					string4096 additional_options;
+					xr_strcat(NewServerOptions, sizeof(NewServerOptions), remove_version_option(m_SO, additional_options, sizeof(additional_options)));
 				}
-				else
-				{
-                    shared_str serverOption = GamePersistent().GetServerOption();
-					const char* m_SO = serverOption.c_str();
-					m_SO = strchr(m_SO, '/'); if (m_SO) m_SO++;
-					m_SO = strchr(m_SO, '/'); 
-
-					shared_str LevelName;
-					shared_str LevelVersion;
-					shared_str GameType;
-
-					P->r_stringZ(LevelName);
-					P->r_stringZ(LevelVersion);
-					P->r_stringZ(GameType);
-
-					string4096 NewServerOptions = "";
-					xr_sprintf(NewServerOptions, "%s/%s/%s%s",
-						LevelName.c_str(),
-						GameType.c_str(),
-						map_ver_string,
-						LevelVersion.c_str()
-					);
-
-					if (m_SO)
-					{
-						string4096 additional_options;
-						xr_strcat(NewServerOptions, sizeof(NewServerOptions),
-							remove_version_option(m_SO, additional_options, sizeof(additional_options))
-						);
-					}
-                    GamePersistent().SetServerOption(NewServerOptions);
-					MakeReconnect();
-				};
+                GamePersistent().SetServerOption(NewServerOptions);
+				MakeReconnect();
 			}break;
 		case M_CHANGE_SELF_NAME:
 			{
@@ -344,7 +319,7 @@ void CLevel::ClientReceive()
 				game_events->insert		(*P);
 				if (g_bDebugEvents)		ProcessGameEvents();
 			}break;
-		case M_STATISTIC_UPDATE_RESPOND: //deprecated, see  xrServer::OnMessage
+		case M_STATISTIC_UPDATE_RESPOND: //deprecated, see  game_sv_Single::OnMessage
 			{
 			}break;
 		case M_FILE_TRANSFER:
@@ -367,7 +342,7 @@ void CLevel::ClientReceive()
 	if (g_bDebugEvents) ProcessGameSpawns();
 }
 
-void				CLevel::OnMessage				(void* data, u32 size)
+void CLevel::OnMessage(void* data, u32 size)
 {	
 	IPureClient::OnMessage(data, size);	
 };

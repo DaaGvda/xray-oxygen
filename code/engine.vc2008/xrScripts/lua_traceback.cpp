@@ -18,22 +18,5 @@ extern "C"
 
 SCRIPT_API const char* get_traceback(lua_State *L, int depth)
 {
-	// alpet: Lua traceback added
-	int top = lua_gettop(L);
-	lua_getfield(L, LUA_GLOBALSINDEX, "debug");
-	lua_getfield(L, -1, "traceback");
-	lua_pushstring(L, "\t");
-	lua_pushinteger(L, 1);
-
-	const char* m_traceback = "cannot get Lua traceback ";
-
-	if (!lua_pcall(L, 2, 1, 0))
-	{
-		m_traceback = lua_tostring(L, -1);
-		lua_pop(L, 1);
-	}
-
-	lua_settop (L, top);
-
-	return m_traceback;
+	return lua_tostring(L, -1);
 }

@@ -4,7 +4,7 @@
 #include "entity_alive.h"
 #include "inventory_item_impl.h"
 #include "inventory.h"
-#include "xrserver_objects_alife_items.h"
+#include "xrServer_objects_alife_items.h"
 #include "actor.h"
 #include "actoreffector.h"
 #include "level.h"
@@ -678,9 +678,7 @@ void CWeapon::OnEvent(NET_Packet& P, u16 type)
 			u8 AmmoElapsed = P.r_u8();
 			u8 NextAmmo = P.r_u8();
 			
-			m_set_next_ammoType_on_reload = (NextAmmo == undefined_ammo_type) ? undefined_ammo_type : NextAmmo;
-
-			if (OnClient()) SetAmmoElapsed(int(AmmoElapsed));			
+			m_set_next_ammoType_on_reload = (NextAmmo == undefined_ammo_type) ? undefined_ammo_type : NextAmmo;	
 			OnStateSwitch	(u32(state));
 		}
 		break;
@@ -984,30 +982,27 @@ bool CWeapon::Action(u16 cmd, u32 flags)
 	return false;
 }
 
-bool CWeapon::SwitchAmmoType( u32 flags ) 
+bool CWeapon::SwitchAmmoType(u32 flags)
 {
-	if ( IsPending() || OnClient() )
+	if (IsPending())
 		return false;
 
-	if ( !(flags & CMD_START) )
+	if (!(flags & CMD_START))
 		return false;
 
-	u8 l_newType = m_ammoType;
+	u8 l_newType;
 	bool b1, b2;
-	do 
+	do
 	{
-		l_newType = u8( (u32(l_newType+1)) % m_ammoTypes.size() );
+		l_newType = u8((u32(m_ammoType + 1)) % m_ammoTypes.size());
 		b1 = (l_newType != m_ammoType);
-		b2 = unlimited_ammo() ? false : ( !m_pInventory->GetAny( m_ammoTypes[l_newType].c_str() ) );						
-	} while( b1 && b2 );
+		b2 = unlimited_ammo() ? false : (!m_pInventory->GetAny(m_ammoTypes[l_newType].c_str()));
+	} while (b1 && b2);
 
-	if ( l_newType != m_ammoType )
+	if (l_newType != m_ammoType)
 	{
-		m_set_next_ammoType_on_reload = l_newType;					
-		if ( OnServer() )
-		{
-			Reload();
-		}
+		m_set_next_ammoType_on_reload = l_newType;
+		Reload();
 	}
 	return true;
 }
@@ -1015,7 +1010,6 @@ bool CWeapon::SwitchAmmoType( u32 flags )
 void CWeapon::SpawnAmmo(u32 boxCurr, LPCSTR ammoSect, u32 ParentID) 
 {
 	if(!m_ammoTypes.size())			return;
-	if (OnClient())					return;
 	m_bAmmoWasSpawned				= true;
 	
 	int l_type						= 0;
@@ -1158,8 +1152,6 @@ float CWeapon::GetConditionMisfireProbability() const
 
 BOOL CWeapon::CheckForMisfire	()
 {
-	if (OnClient()) return FALSE;
-
 	float rnd = ::Random.randF(0.f,1.f);
 	float mp = GetConditionMisfireProbability();
 	if(rnd < mp)
@@ -1417,18 +1409,8 @@ CUIWindow* CWeapon::ZoomTexture()
 
 void CWeapon::SwitchState(u32 S)
 {
-	if (OnClient()) return;
-
-#ifndef MASTER_GOLD
-	if ( bDebug )
-	{
-		Msg("---Server is going to send GE_WPN_STATE_CHANGE to [%d], weapon_section[%s], parent[%s]",
-			S, cNameSect().c_str(), H_Parent() ? H_Parent()->cName().c_str() : "NULL Parent");
-	}
-#endif // #ifndef MASTER_GOLD
-
 	SetNextState		( S );
-	if (CHudItem::object().Local() && !CHudItem::object().getDestroy() && m_pInventory && OnServer())	
+	if (CHudItem::object().Local() && !CHudItem::object().getDestroy() && m_pInventory)	
 	{
 		// !!! Just single entry for given state !!!
 		NET_Packet		P;

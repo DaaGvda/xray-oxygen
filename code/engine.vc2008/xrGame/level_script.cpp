@@ -11,7 +11,7 @@
 #include "actor.h"
 #include "script_game_object.h"
 #include "patrol_path_storage.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "client_spawn_manager.h"
 #include "../xrEngine/igame_persistent.h"
 #include "game_cl_base.h"
@@ -161,9 +161,6 @@ void stop_weather_fx()
 
 void set_time_factor(float time_factor)
 {
-	if (!OnServer())
-		return;
-
 #ifdef INGAME_EDITOR
 	if (Device.editor())
 		return;

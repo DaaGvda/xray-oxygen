@@ -2,25 +2,37 @@
 #include "game_cl_base.h"
 #include "../xrScripts/export/script_export_space.h"
 
-class game_cl_Single :public game_cl_GameState
+class game_cl_Single: public game_cl_GameState, DLL_Pure
 {
-	typedef game_cl_GameState	inherited;
-public :
-										game_cl_Single			();
-	virtual		CUIGameCustom*			createGameUI			();
-	virtual		char*					getTeamSection			(int Team);
-	virtual		bool					IsServerControlHits		()	{return true;};
+public: /* bad */
+	virtual DLL_Pure*		    _construct() { return this; }
+public:
+								game_cl_Single			();
+	virtual	CUIGameCustom*		createGameUI			();
+	virtual	void				SetGameUI(CUIGameCustom*) { };
 
-	virtual		ALife::_TIME_ID			GetStartGameTime		();
-	virtual		ALife::_TIME_ID			GetGameTime				();	
-	virtual		float					GetGameTimeFactor		();	
-	virtual		void					SetGameTimeFactor		(const float fTimeFactor);
+	virtual	u64					GetStartGameTime		();
+	virtual	u64					GetGameTime				();	
+	virtual	float				GetGameTimeFactor		();	
+	virtual	void				SetGameTimeFactor		(const float fTimeFactor);
+	virtual	void				SetGameTimeFactor		(u64 GameTime, const float fTimeFactor);
 
-	virtual		ALife::_TIME_ID		GetEnvironmentGameTime		();
-	virtual		float				GetEnvironmentGameTimeFactor();
-	virtual		void				SetEnvironmentGameTimeFactor(const float fTimeFactor);
+	virtual	u64					GetEnvironmentGameTime		();
+	virtual	float				GetEnvironmentGameTimeFactor();
+	virtual	void				SetEnvironmentGameTimeFactor(const float fTimeFactor);
+	virtual	 void				SetEnvironmentGameTimeFactor(u64 GameTime, const float fTimeFactor);
 
-	void		OnDifficultyChanged		();
+	void						OnDifficultyChanged		();
+	void						SendPickUpEvent(u16 ID_who, u16 ID_what);
+
+private:
+	u64 m_qwStartGameTime;
+	u64 m_qwStartProcessorTime;
+	u64 m_fTimeFactor;
+
+	u64 m_qwEStartGameTime;
+	u64 m_qwEStartProcessorTime;
+	u64 m_fETimeFactor;
 };
 
 

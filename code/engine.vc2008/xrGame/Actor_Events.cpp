@@ -15,7 +15,6 @@
 #include "CameraLook.h"
 #include "CameraFirstEye.h"
 #include "holder_custom.h"
-#include "game_base_space.h"
 #ifdef DEBUG
 #include "PHDebug.h"
 #endif

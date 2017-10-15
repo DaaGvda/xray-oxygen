@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 
 // Initiate migration
-void xrServer::PerformMigration(CSE_Abstract* E, xrClientData* from, xrClientData* to)
+void game_sv_Single::PerformMigration(CSE_Abstract* E, xrClientData* from, xrClientData* to)
 {
 	return;
 //	R_ASSERT	(from != to);

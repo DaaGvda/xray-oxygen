@@ -39,7 +39,6 @@ void CLevel::ProcessCompressedUpdate(NET_Packet& P, u8 const compress_type)
 	}
 	Device.Statistic->netClientCompressor.End();
 
-	if (OnClient()) UpdateDeltaUpd(timeServer());
 	IClientStatistic pStat = Level().GetStatistic();
 	u32 dTime = 0;
 	
@@ -57,12 +56,7 @@ void CLevel::ProcessCompressedUpdate(NET_Packet& P, u8 const compress_type)
 
 void CLevel::init_compression()
 {
-	//compression::init_ppmd_trained_stream(m_trained_stream);
-	compression::init_lzo(
-		m_lzo_working_memory,
-		m_lzo_working_buffer,
-		m_lzo_dictionary
-	);
+	compression::init_lzo(m_lzo_working_memory, m_lzo_working_buffer, m_lzo_dictionary);
 }
 
 void CLevel::deinit_compression()

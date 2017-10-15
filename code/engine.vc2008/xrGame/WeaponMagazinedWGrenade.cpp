@@ -3,13 +3,12 @@
 #include "entity.h"
 #include "ParticlesObject.h"
 #include "GrenadeLauncher.h"
-#include "xrserver_objects_alife_items.h"
+#include "xrServer_objects_alife_items.h"
 #include "ExplosiveRocket.h"
 #include "Actor.h"
 #include "xr_level_controller.h"
 #include "level.h"
 #include "object_broker.h"
-#include "game_base_space.h"
 #include "../xrphysics/MathUtils.h"
 #include "player_hud.h"
 
@@ -340,7 +339,7 @@ void  CWeaponMagazinedWGrenade::LaunchGrenade()
 		pGrenade->SetInitiator			(H_Parent()->ID());
 
 		
-		if (Local() && OnServer())
+		if (Local())
 		{
 			VERIFY				(m_magazine.size());
 			m_magazine.pop_back	();
@@ -472,8 +471,7 @@ bool CWeaponMagazinedWGrenade::Attach(PIItem pIItem, bool b_send_event)
  		//уничтожить подствольник из инвентаря
 		if(b_send_event)
 		{
-			if (OnServer()) 
-				pIItem->object().DestroyObject	();
+			pIItem->object().DestroyObject	();
 		}
 		InitAddons				();
 		UpdateAddonsVisibility	();

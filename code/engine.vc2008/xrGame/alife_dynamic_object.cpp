@@ -15,13 +15,11 @@
 #include "level_graph.h"
 #include "game_level_cross_table.h"
 #include "game_graph.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 
 void CSE_ALifeDynamicObject::on_spawn				()
 {
-#ifdef DEBUG
-//	Msg			("[LSS] spawning object [%d][%d][%s][%s]",ID,ID_Parent,name(),name_replace());
-#endif
+
 }
 
 void CSE_ALifeDynamicObject::on_register			()
@@ -167,7 +165,7 @@ bool CSE_ALifeDynamicObject::redundant				() const
 	return						(false);
 }
 
-/// ---------------------------- CSE_ALifeInventoryBox ---------------------------------------------
+// ---------------------------- CSE_ALifeInventoryBox ---------------------------------------------
 
 void CSE_ALifeInventoryBox::add_online	(const bool &update_registries)
 {
@@ -175,7 +173,7 @@ void CSE_ALifeInventoryBox::add_online	(const bool &update_registries)
 
 	NET_Packet					tNetPacket;
 	ClientID					clientID;
-	clientID.set				(object->alife().server().GetServerClient() ? object->alife().server().GetServerClient()->ID.value() : 0);
+	clientID.set				(0);
 
 	ALife::OBJECT_IT			I = object->children.begin();
 	ALife::OBJECT_IT			E = object->children.end();
@@ -185,22 +183,7 @@ void CSE_ALifeInventoryBox::add_online	(const bool &update_registries)
 		R_ASSERT2				(l_tpALifeInventoryItem,"Non inventory item object has parent?!");
 		l_tpALifeInventoryItem->base()->s_flags.or(M_SPAWN_UPDATE);
 		CSE_Abstract			*l_tpAbstract = smart_cast<CSE_Abstract*>(l_tpALifeInventoryItem);
-		object->alife().server().entity_Destroy(l_tpAbstract);
-
-#ifdef DEBUG
-//		if (psAI_Flags.test(aiALife))
-//			Msg					("[LSS] Spawning item [%s][%s][%d]",l_tpALifeInventoryItem->base()->name_replace(),*l_tpALifeInventoryItem->base()->s_name,l_tpALifeDynamicObject->ID);
-		Msg						(
-			"[LSS][%d] Going online [%d][%s][%d] with parent [%d][%s] on '%s'",
-			Device.dwFrame,
-			Device.dwTimeGlobal,
-			l_tpALifeInventoryItem->base()->name_replace(),
-			l_tpALifeInventoryItem->base()->ID,
-			ID,
-			name_replace(),
-			"*SERVER*"
-		);
-#endif
+		F_entity_Destroy(l_tpAbstract);
 
 		l_tpALifeDynamicObject->o_Position		= object->o_Position;
 		l_tpALifeDynamicObject->m_tNodeID		= object->m_tNodeID;
@@ -212,6 +195,7 @@ void CSE_ALifeInventoryBox::add_online	(const bool &update_registries)
 	CSE_ALifeDynamicObjectVisual::add_online(update_registries);
 }
 
+#include "sv_idgen.hpp"
 void CSE_ALifeInventoryBox::add_offline	(const xr_vector<ALife::_OBJECT_ID> &saved_children, const bool &update_registries)
 {
 	CSE_ALifeDynamicObjectVisual		*object = (this);
@@ -223,23 +207,9 @@ void CSE_ALifeInventoryBox::add_offline	(const xr_vector<ALife::_OBJECT_ID> &sav
 
 		CSE_ALifeInventoryItem	*inventory_item = smart_cast<CSE_ALifeInventoryItem*>(child);
 		VERIFY2					(inventory_item,"Non inventory item object has parent?!");
-#ifdef DEBUG
-//		if (psAI_Flags.test(aiALife))
-//			Msg					("[LSS] Destroying item [%s][%s][%d]",inventory_item->base()->name_replace(),*inventory_item->base()->s_name,inventory_item->base()->ID);
-		Msg						(
-			"[LSS][%d] Going offline [%d][%s][%d] with parent [%d][%s] on '%s'",
-			Device.dwFrame,
-			Device.dwTimeGlobal,
-			inventory_item->base()->name_replace(),
-			inventory_item->base()->ID,
-			ID,
-			name_replace(),
-			"*SERVER*"
-		);
-#endif
 		
 		ALife::_OBJECT_ID				item_id = inventory_item->base()->ID;
-		inventory_item->base()->ID		= object->alife().server().PerformIDgen(item_id);
+		inventory_item->base()->ID		= m_tID_Generator.tfGetID(item_id);
 
 		if (!child->can_save()) {
 			object->alife().release		(child);
@@ -249,7 +219,6 @@ void CSE_ALifeInventoryBox::add_offline	(const xr_vector<ALife::_OBJECT_ID> &sav
 		}
 		child->clear_client_data();
 		object->alife().graph().add		(child,child->m_tGraphID,false);
-//		object->alife().graph().attach	(*object,inventory_item,child->m_tGraphID,true);
 		alife().graph().remove			(child,child->m_tGraphID);
 		children.push_back				(child->ID);
 		child->ID_Parent				= ID;
@@ -261,10 +230,6 @@ void CSE_ALifeInventoryBox::add_offline	(const xr_vector<ALife::_OBJECT_ID> &sav
 
 void CSE_ALifeDynamicObject::clear_client_data()
 {
-#ifdef DEBUG
-	if (!client_data.empty())
-		Msg						("CSE_ALifeDynamicObject::switch_offline: client_data is cleared for [%d][%s]",ID,name_replace());
-#endif // DEBUG
 	if (!keep_saved_data_anyway())
 		client_data.clear		();
 }

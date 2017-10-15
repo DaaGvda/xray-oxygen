@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "Level.h"
-#include "xrServer.h"
-#include "xrServerMapSync.h"
+#include "game_sv_Single.h"
+#include "game_sv_SingleMapSync.h"
 
-void xrServer::OnProcessClientMapData(NET_Packet& P, ClientID const & clientID)
+void game_sv_Single::OnProcessClientMapData(NET_Packet& P, ClientID const & clientID)
 {
 #ifdef DEBUG
 	Msg("--- Sending map data to client 0x%08x", clientID);

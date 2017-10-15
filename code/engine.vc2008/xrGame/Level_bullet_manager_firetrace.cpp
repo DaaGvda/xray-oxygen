@@ -8,14 +8,11 @@
 #include "entity.h"
 #include "../xrEngine/gamemtllib.h"
 #include "level.h"
-#include "gamepersistent.h"
-#include "game_cl_base.h"
 #include "xrmessages.h"
 #include "../Include/xrRender/Kinematics.h"
 #include "Actor.h"
 #include "AI/Stalker/ai_stalker.h"
 #include "character_info.h"
-#include "game_cl_base_weapon_usage_statistic.h"
 #include "../xrcdb/xr_collide_defs.h"
 #include "../xrengine/xr_collide_form.h"
 #include "weapon.h"
@@ -246,9 +243,9 @@ void CBulletManager::DynamicObjectHit	(CBulletManager::_event& E)
 	//только для динамических объектов
 	VERIFY(E.R.O);
 
-	if ( CEntity* entity = smart_cast<CEntity*>(E.R.O) )
+	if (CEntity* entity = smart_cast<CEntity*>(E.R.O))
 	{
-		if ( !entity->in_solid_state() )
+		if (!entity->in_solid_state())
 		{
 			return;
 		}
@@ -258,17 +255,9 @@ void CBulletManager::DynamicObjectHit	(CBulletManager::_event& E)
 	E.Repeated = false;
 	bool NeedShootmark = true;//!E.Repeated;
 	
-	if (smart_cast<CActor*>(E.R.O))
+	if (CBaseMonster * monster = smart_cast<CBaseMonster *>(E.R.O))
 	{
-		game_PlayerState* ps = Game().GetPlayerByGameID(E.R.O->ID());
-		if (ps && ps->testFlag(GAME_PLAYER_FLAG_INVINCIBLE))
-		{
-			NeedShootmark = false;
-		};
-	}
-	else if ( CBaseMonster * monster = smart_cast<CBaseMonster *>(E.R.O) )
-	{
-		NeedShootmark	=	monster->need_shotmark();
+		NeedShootmark = monster->need_shotmark();
 	}
 	
 	//визуальное обозначение попадание на объекте

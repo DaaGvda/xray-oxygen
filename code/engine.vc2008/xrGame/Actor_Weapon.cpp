@@ -14,7 +14,6 @@
 #include "EffectorShot.h"
 #include "WeaponMagazined.h"
 #include "Grenade.h"
-#include "game_base_space.h"
 #include "Artefact.h"
 
 static const float VEL_MAX		= 10.f;
@@ -236,7 +235,6 @@ Fvector CActor::weapon_recoil_last_delta()
 
 void	CActor::SpawnAmmoForWeapon	(CInventoryItem *pIItem)
 {
-	if (OnClient()) return;
 	if (!pIItem) return;
 
 	CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*> (pIItem);
@@ -249,7 +247,6 @@ void	CActor::SpawnAmmoForWeapon	(CInventoryItem *pIItem)
 
 void	CActor::RemoveAmmoForWeapon	(CInventoryItem *pIItem)
 {
-	if (OnClient()) return;
 	if (!pIItem) return;
 
 	CWeaponMagazined* pWM = smart_cast<CWeaponMagazined*> (pIItem);

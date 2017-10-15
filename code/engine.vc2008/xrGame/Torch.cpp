@@ -4,7 +4,7 @@
 #include "actor.h"
 #include "../xrEngine/LightAnimLibrary.h"
 #include "../xrphysics/PhysicsShell.h"
-#include "xrserver_objects_alife_items.h"
+#include "xrServer_objects_alife_items.h"
 #include "ai_sounds.h"
 
 #include "level.h"
@@ -12,7 +12,6 @@
 #include "../xrEngine/camerabase.h"
 #include "../xrengine/xr_collide_form.h"
 #include "inventory.h"
-#include "game_base_space.h"
 
 #include "UIGameCustom.h"
 #include "actorEffector.h"
@@ -88,7 +87,6 @@ void CTorch::Load(LPCSTR section)
 
 void CTorch::SwitchNightVision()
 {
-	if (OnClient()) return;
 	SwitchNightVision(!m_bNightVisionOn);	
 }
 
@@ -164,7 +162,6 @@ void CTorch::SwitchNightVision(bool vision_on, bool use_sounds)
 
 void CTorch::Switch()
 {
-	if (OnClient())			return;
 	bool bActive			= !m_switched_on;
 	Switch					(bActive);
 }

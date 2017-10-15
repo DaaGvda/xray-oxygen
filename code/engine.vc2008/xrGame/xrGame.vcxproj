@@ -707,10 +707,12 @@
     <ClInclude Include="..\xrServerEntities\script_debugger.h" />
     <ClInclude Include="..\xrServerEntities\script_debugger_threads.h" />
     <ClInclude Include="..\xrServerEntities\script_lua_helper.h" />
+    <ClInclude Include="game_cl_single.h" />
     <ClInclude Include="mt_config.h" />
     <ClInclude Include="damage_manager.h" />
     <ClInclude Include="damage_manager_inline.h" />
     <ClInclude Include="DamageSource.h" />
+    <ClInclude Include="sv_idgen.hpp" />
     <ClInclude Include="wrapper_abstract.h" />
     <ClInclude Include="wrapper_abstract_inline.h" />
     <ClInclude Include="action_management_config.h" />
@@ -1920,8 +1922,6 @@
     <ClInclude Include="..\xrServerEntities\associative_vector_compare_predicate_inline.h" />
     <ClInclude Include="static_cast_checked.hpp" />
     <ClInclude Include="screenshot_server.h" />
-    <ClInclude Include="xrClientsPool.h" />
-    <ClInclude Include="xrServer.h" />
     <ClInclude Include="xrServer_info.h" />
     <ClInclude Include="..\xrServerEntities\xrServer_Space.h" />
     <ClInclude Include="xrServer_updates_compressor.h" />
@@ -1932,15 +1932,7 @@
     <ClInclude Include="PropertiesListHelper.h" />
     <ClInclude Include="..\xrServerEntities\WaveForm.h" />
     <ClInclude Include="..\xrServerEntities\xrEProps.h" />
-    <ClInclude Include="game_base.h" />
-    <ClInclude Include="game_base_kill_type.h" />
-    <ClInclude Include="game_base_menu_events.h" />
-    <ClInclude Include="..\xrServerEntities\game_base_space.h" />
-    <ClInclude Include="game_cl_single.h" />
     <ClInclude Include="game_cl_base.h" />
-    <ClInclude Include="game_cl_base_weapon_usage_statistic.h" />
-    <ClInclude Include="game_sv_base.h" />
-    <ClInclude Include="game_sv_event_queue.h" />
     <ClInclude Include="xr_time.h" />
     <ClInclude Include="game_sv_single.h" />
     <ClInclude Include="id_generator.h" />
@@ -2140,10 +2132,10 @@
     <ClCompile Include="..\xrServerEntities\script_debugger_threads.cpp" />
     <ClCompile Include="..\xrServerEntities\script_lua_helper.cpp" />
     <ClCompile Include="damage_manager.cpp" />
+    <ClCompile Include="game_cl_single.cpp" />
     <ClCompile Include="raypick.cpp" />
     <ClCompile Include="action_base_script.cpp">
     </ClCompile>
-    <ClCompile Include="game_sv_item_respawner.cpp" />
     <ClCompile Include="script_action_wrapper.cpp">
     </ClCompile>
     <ClCompile Include="action_planner_script.cpp">
@@ -2831,6 +2823,7 @@
     <ClCompile Include="pp_effector_custom.cpp" />
     <ClCompile Include="pp_effector_distance.cpp" />
     <ClCompile Include="PostprocessAnimator.cpp" />
+    <ClCompile Include="xrServer_info.cpp" />
     <ClCompile Include="zone_effector.cpp" />
     <ClCompile Include="EffectorShot.cpp" />
     <ClCompile Include="EffectorShotX.cpp" />
@@ -3225,24 +3218,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_AI32|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="screenshot_server.cpp" />
-    <ClCompile Include="xrClientsPool.cpp" />
     <ClCompile Include="xrGame.cpp" />
-    <ClCompile Include="xrServer.cpp">
-    </ClCompile>
-    <ClCompile Include="xrServer_balance.cpp" />
-    <ClCompile Include="xrServer_info.cpp" />
     <ClCompile Include="xrServer_updates_compressor.cpp" />
     <ClCompile Include="xrServerMapSync.cpp" />
-    <ClCompile Include="game_base.cpp">
-    </ClCompile>
-    <ClCompile Include="game_cl_single.cpp">
-    </ClCompile>
     <ClCompile Include="game_cl_base.cpp">
     </ClCompile>
-    <ClCompile Include="game_cl_base_weapon_usage_statistic.cpp" />
-    <ClCompile Include="game_cl_base_weapon_usage_statistic_save.cpp" />
-    <ClCompile Include="game_sv_base.cpp" />
-    <ClCompile Include="game_sv_event_queue.cpp" />
     <ClCompile Include="xr_time.cpp" />
     <ClCompile Include="game_sv_single.cpp" />
     <ClCompile Include="..\xrServerEntities\gametype_chooser.cpp" />
@@ -3294,16 +3274,11 @@
     <ClCompile Include="xrServer_process_event_destroy.cpp" />
     <ClCompile Include="xrServer_process_event_ownership.cpp" />
     <ClCompile Include="xrServer_process_event_reject.cpp" />
-    <ClCompile Include="xrServer_process_spawn.cpp" />
     <ClCompile Include="xrServer_process_update.cpp" />
     <ClCompile Include="xrServer_svclient_validation.cpp" />
     <ClCompile Include="file_transfer.cpp" />
     <ClCompile Include="filereceiver_node.cpp" />
     <ClCompile Include="filetransfer_node.cpp" />
-    <ClCompile Include="xrServer_CL_connect.cpp" />
-    <ClCompile Include="xrServer_CL_disconnect.cpp" />
-    <ClCompile Include="xrServer_Connect.cpp" />
-    <ClCompile Include="xrServer_Disconnect.cpp" />
     <ClCompile Include="ui_base.cpp" />
     <ClCompile Include="UIDialogHolder.cpp" />
     <ClCompile Include="ui\UIInventoryUpgradeWnd.cpp">

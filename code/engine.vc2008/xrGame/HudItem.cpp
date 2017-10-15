@@ -78,9 +78,6 @@ void CHudItem::renderable_Render()
 
 void CHudItem::SwitchState(u32 S)
 {
-	if (OnClient()) 
-		return;
-
 	SetNextState( S );
 
 	if (object().Local() && !object().getDestroy())	

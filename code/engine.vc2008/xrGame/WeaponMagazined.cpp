@@ -7,7 +7,7 @@
 #include "GrenadeLauncher.h"
 #include "inventory.h"
 #include "InventoryOwner.h"
-#include "xrserver_objects_alife_items.h"
+#include "xrServer_objects_alife_items.h"
 #include "ActorEffector.h"
 #include "EffectorZoomInertion.h"
 #include "xr_level_controller.h"
@@ -365,7 +365,7 @@ void CWeaponMagazined::ReloadMagazine()
 	VERIFY((u32)iAmmoElapsed == m_magazine.size());
 
 	//выкинуть коробку патронов, если она пустая
-	if(m_pCurrentAmmo && !m_pCurrentAmmo->m_boxCurr && OnServer()) 
+	if(m_pCurrentAmmo && !m_pCurrentAmmo->m_boxCurr) 
 		m_pCurrentAmmo->SetDropManual(TRUE);
 
 	if(iMagazineSize > iAmmoElapsed) 
@@ -645,8 +645,6 @@ void CWeaponMagazined::switch2_Fire	()
 #ifdef DEBUG
 	if (!io)
 		return;
-	//VERIFY2					(io,make_string("no inventory owner, item %s",*cName()));
-
 	if (ii != io->inventory().ActiveItem())
 		Msg					("! not an active item, item %s, owner %s, active item %s",*cName(),*H_Parent()->cName(),io->inventory().ActiveItem() ? *io->inventory().ActiveItem()->object().cName() : "no_active_item");
 
@@ -664,21 +662,11 @@ void CWeaponMagazined::switch2_Fire	()
 		return;
 #endif // DEBUG
 
-//
-//	VERIFY2(
-//		io && (ii == io->inventory().ActiveItem()),
-//		make_string(
-//			"item[%s], parent[%s]",
-//			*cName(),
-//			H_Parent() ? *H_Parent()->cName() : "no_parent"
-//		)
-//	);
-
 	m_bStopedAfterQueueFired = false;
 	m_bFireSingleShot = true;
 	m_iShotNum = 0;
 
-    if((OnClient() || Level().IsDemoPlay())&& !IsWorking())
+    if(Level().IsDemoPlay() && !IsWorking())
 		FireStart();
 
 }
@@ -878,10 +866,9 @@ bool CWeaponMagazined::Attach(PIItem pIItem, bool b_send_event)
 
 	if(result)
 	{
-		if (b_send_event && OnServer())
+		if (b_send_event)
 		{
 			//уничтожить подсоединенную вещь из инвентаря
-//.			pIItem->Drop					();
 			pIItem->object().DestroyObject	();
 		};
 

@@ -1,14 +1,14 @@
 #include "stdafx.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "game_sv_single.h"
 #include "alife_simulator.h"
-#include "xrserver_objects.h"
+#include "xrServer_objects.h"
 #include "game_base.h"
 #include "game_cl_base.h"
 #include "ai_space.h"
 #include "alife_object_registry.h"
 
-xr_string xrServer::ent_name_safe(u16 eid)
+xr_string game_sv_Single::ent_name_safe(u16 eid)
 {
 	string1024						buff;
 	CSE_Abstract*	e_dest			= game->get_entity_from_eid	(eid);
@@ -20,7 +20,7 @@ xr_string xrServer::ent_name_safe(u16 eid)
 	return buff;
 }
 
-void xrServer::Process_event_destroy	(NET_Packet& P, ClientID sender, u32 time, u16 ID, NET_Packet* pEPack)
+void game_sv_Single::Process_event_destroy	(NET_Packet& P, ClientID sender, u32 time, u16 ID, NET_Packet* pEPack)
 {
 	u32								MODE = net_flags(TRUE,TRUE);
 	// Parse message

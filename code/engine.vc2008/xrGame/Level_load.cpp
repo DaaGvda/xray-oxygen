@@ -55,9 +55,6 @@ BOOL CLevel::Load_GameSpecific_After()
 				if(OBJ->length()==sizeof(u32))
 				{
 					ver		= OBJ->r_u32();
-#ifndef MASTER_GOLD
-					Msg		("PS new version, %d", ver);
-#endif // #ifndef MASTER_GOLD
 					continue;
 				}
 			}
@@ -199,7 +196,6 @@ void CLevel::Load_GameSpecific_CFORM	( CDB::TRI* tris, u32 count )
 		}
 		if ((*I)->GetID()>max_ID)				max_ID			= (*I)->GetID(); 
 	}
-	// Msg("* Material remapping ID: [Max:%d, StaticMax:%d]",max_ID,max_static_ID);
 	VERIFY(max_static_ID<0xFFFF);
 	
 	if (static_mtl_count < 128) {

@@ -2,7 +2,7 @@
 #include "xrMessages.h"
 #include "file_transfer.h"
 #include "Level.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "ui_base.h"
 
 

@@ -6,7 +6,6 @@
 #include "ParticlesObject.h"
 #include "Level.h"
 #include "hudmanager.h"
-#include "xrServer.h"
 #include "net_queue.h"
 #include "game_cl_base.h"
 #include "entity_alive.h"
@@ -36,7 +35,6 @@
 #include "level_sounds.h"
 #include "car.h"
 #include "trade_parameters.h"
-#include "game_cl_base_weapon_usage_statistic.h"
 #include "MainMenu.h"
 #include "../xrEngine/XR_IOConsole.h"
 #include "actor.h"
@@ -113,7 +111,7 @@ bool CLevel::PostponedSpawn(u16 id)
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CLevel::CLevel():IPureClient	(Device.GetTimerGlobal())
+CLevel::CLevel():IPureClient(Device.GetTimerGlobal())
 {
 	g_bDebugEvents				= strstr(Core.Params,"-debug_ge")?TRUE:FALSE;
 
@@ -125,7 +123,6 @@ CLevel::CLevel():IPureClient	(Device.GetTimerGlobal())
 	spawn_events				= xr_new<NET_Queue_Event>();
 	game_configured				= FALSE;
 	m_bGameConfigStarted		= FALSE;
-	m_connect_server_err		= xrServer::ErrNoError;
 
 	eChangeRP					= Engine.Event.Handler_Attach	("LEVEL:ChangeRP",this);
 	eDemoPlay					= Engine.Event.Handler_Attach	("LEVEL:PlayDEMO",this);
@@ -342,13 +339,14 @@ shared_str	CLevel::name		() const
 {
 	return						(map_data.m_name);
 }
+#include "game_sv_single.h"
 
 void CLevel::GetLevelInfo( CServerInfo* si )
 {
-	if ( Server && game )
-	{
-		Server->GetServerInfo( si );
-	}
+	//if ( Server && game )
+	//{
+	//	Server->GetServerInfo( si );
+	//}
 }
 
 
@@ -383,10 +381,8 @@ void CLevel::cl_Process_Event				(u16 dest, u16 type, NET_Packet& P)
 	if (!O)	return;
 	
 	CGameObject* GO = smart_cast<CGameObject*>(O);
-	if (!GO)		{
-#ifndef MASTER_GOLD
-		Msg("! ERROR: c_EVENT[%d] : non-game-object",dest);
-#endif // #ifndef MASTER_GOLD
+	if (!GO)
+	{
 		return;
 	}
 	if (type != GE_DESTROY_REJECT)
@@ -406,17 +402,11 @@ void CLevel::cl_Process_Event				(u16 dest, u16 type, NET_Packet& P)
 
 		CObject			*D	= Objects.net_Find	(id);
 		if (0==D)		{
-#ifndef MASTER_GOLD
-			Msg			("! ERROR: c_EVENT[%d] : unknown dest",id);
-#endif // #ifndef MASTER_GOLD
 			ok			= false;
 		}
 
 		CGameObject		*GD = smart_cast<CGameObject*>(D);
 		if (!GD)		{
-#ifndef MASTER_GOLD
-			Msg			("! ERROR: c_EVENT[%d] : non-game-object",id);
-#endif // #ifndef MASTER_GOLD
 			ok			= false;
 		}
 
@@ -514,7 +504,7 @@ void CLevel::ProcessGameEvents()
 				}break;
 			case M_GAMEMESSAGE:
 				{
-					Game().OnGameMessage(P);
+//					Game().OnGameMessage(P);
 				}break;
 			default:
 				{
@@ -622,88 +612,55 @@ void CLevel::OnFrame	()
 	inherited::OnFrame		();
 
 	// Draw client/server stats
-	if ( !g_dedicated_server && psDeviceFlags.test(rsStatistic))
+	if (!g_dedicated_server && psDeviceFlags.test(rsStatistic))
 	{
-		CGameFont* F = UI().Font().pFontDI;
-		if (!psNET_direct_connect) 
+		/*CGameFont* F = UI().Font().pFontDI;
+		if (!psNET_direct_connect)
 		{
-			if ( IsServer() )
+			const IServerStatistic* S = Server->GetStatistic();
+			F->SetHeightI(0.015f);
+			F->OutSetI(0.0f, 0.5f);
+			F->SetColor(D3DCOLOR_XRGB(0, 255, 0));
+			F->OutNext("IN:  %4d/%4d (%2.1f%%)", S->bytes_in_real, S->bytes_in, 100.f*float(S->bytes_in_real) / float(S->bytes_in));
+			F->OutNext("OUT: %4d/%4d (%2.1f%%)", S->bytes_out_real, S->bytes_out, 100.f*float(S->bytes_out_real) / float(S->bytes_out));
+			F->OutNext("client_2_sever ping: %d", net_Statistic.getPing());
+			F->OutNext("SPS/Sended : %4d/%4d", S->dwBytesPerSec, S->dwBytesSended);
+			F->OutNext("sv_urate/cl_urate : %4d/%4d", psNET_ServerUpdate, psNET_ClientUpdate);
+
+			F->SetColor(D3DCOLOR_XRGB(255, 255, 255));
+
+			struct net_stats_functor
 			{
-				const IServerStatistic* S = Server->GetStatistic();
-				F->SetHeightI	(0.015f);
-				F->OutSetI	(0.0f,0.5f);
-				F->SetColor	(D3DCOLOR_XRGB(0,255,0));
-				F->OutNext	("IN:  %4d/%4d (%2.1f%%)",	S->bytes_in_real,	S->bytes_in,	100.f*float(S->bytes_in_real)/float(S->bytes_in));
-				F->OutNext	("OUT: %4d/%4d (%2.1f%%)",	S->bytes_out_real,	S->bytes_out,	100.f*float(S->bytes_out_real)/float(S->bytes_out));
-				F->OutNext	("client_2_sever ping: %d",	net_Statistic.getPing());
-				F->OutNext	("SPS/Sended : %4d/%4d", S->dwBytesPerSec, S->dwBytesSended);
-				F->OutNext	("sv_urate/cl_urate : %4d/%4d", psNET_ServerUpdate, psNET_ClientUpdate);
-
-				F->SetColor	(D3DCOLOR_XRGB(255,255,255));
-
-				struct net_stats_functor
+				game_sv_Single* m_server;
+				CGameFont* F;
+				void operator()(IClient* C)
 				{
-					xrServer* m_server;
-					CGameFont* F;
-					void operator()(IClient* C)
-					{
-						m_server->UpdateClientStatistic(C);
-						F->OutNext("0x%08x: P(%d), BPS(%2.1fK), MRR(%2d), MSR(%2d), Retried(%2d), Blocked(%2d)",
-							//Server->game->get_option_s(*C->Name,"name",*C->Name),
-							C->ID.value(),
-							C->stats.getPing(),
-							float(C->stats.getBPS()),// /1024,
-							C->stats.getMPS_Receive	(),
-							C->stats.getMPS_Send	(),
-							C->stats.getRetriedCount(),
-							C->stats.dwTimesBlocked
-						);
-					}
-				};
-				net_stats_functor tmp_functor;
-				tmp_functor.m_server = Server;
-				tmp_functor.F = F;
-				Server->ForEachClientDo(tmp_functor);
-			}
-			if (IsClient())
-			{
-				IPureClient::UpdateStatistic();
-
-				F->SetHeightI(0.015f);
-				F->OutSetI	(0.0f,0.5f);
-				F->SetColor	(D3DCOLOR_XRGB(0,255,0));
-				F->OutNext	("client_2_sever ping: %d",	net_Statistic.getPing());
-				F->OutNext	("sv_urate/cl_urate : %4d/%4d", psNET_ServerUpdate, psNET_ClientUpdate);
-
-				F->SetColor	(D3DCOLOR_XRGB(255,255,255));
-				F->OutNext("BReceivedPs(%2d), BSendedPs(%2d), Retried(%2d), Blocked(%2d)",
-					net_Statistic.getReceivedPerSec(),
-					net_Statistic.getSendedPerSec(),
-					net_Statistic.getRetriedCount(),
-					net_Statistic.dwTimesBlocked);
-#ifdef DEBUG
-				if (!pStatGraphR)
-				{
-					pStatGraphR = xr_new<CStatGraph>();
-					pStatGraphR->SetRect(50, 700, 300, 68, 0xff000000, 0xff000000);
-					//m_stat_graph->SetGrid(0, 0.0f, 10, 1.0f, 0xff808080, 0xffffffff);
-					pStatGraphR->SetMinMax(0.0f, 65536.0f, 1000);
-					pStatGraphR->SetStyle(CStatGraph::stBarLine);
-					pStatGraphR->AppendSubGraph(CStatGraph::stBarLine);
+					m_server->UpdateClientStatistic(C);
+					F->OutNext("0x%08x: P(%d), BPS(%2.1fK), MRR(%2d), MSR(%2d), Retried(%2d), Blocked(%2d)",
+						//Server->game->get_option_s(*C->Name,"name",*C->Name),
+						C->ID.value(),
+						C->stats.getPing(),
+						float(C->stats.getBPS()),// /1024,
+						C->stats.getMPS_Receive(),
+						C->stats.getMPS_Send(),
+						C->stats.getRetriedCount(),
+						C->stats.dwTimesBlocked
+					);
 				}
-				pStatGraphR->AppendItem(float(net_Statistic.getBPS()), 0xff00ff00, 0);
-				F->OutSet(20.f, 700.f);
-				F->OutNext("64 KBS");
-
-#endif
-			}
-		}
-	} else
-	{
-#ifdef DEBUG
-		if (pStatGraphR)
-			xr_delete(pStatGraphR);
-#endif
+			};
+			net_stats_functor tmp_functor;
+			tmp_functor.m_server = Server;
+			tmp_functor.F = F;
+			Server->ForEachClientDo(tmp_functor);
+			*/
+//		}
+//	}
+//	else
+//	{
+//#ifdef DEBUG
+//		if (pStatGraphR)
+//			xr_delete(pStatGraphR);
+//#endif
 	}
 #ifdef DEBUG
 	g_pGamePersistent->Environment().m_paused		= m_bEnvPaused;
@@ -766,17 +723,11 @@ extern void draw_wnds_rects();
 
 void CLevel::OnRender()
 {
-	inherited::OnRender	();
+	inherited::OnRender();
 
 	if (!game)
 		return;
-
-	Game().OnRender();
-	//  
-	//Device.Statistic->TEST1.Begin();
 	BulletManager().Render();
-	//Device.Statistic->TEST1.End();
-	// c 
 	HUD().RenderUI();
 
 #ifdef DEBUG
@@ -1131,28 +1082,10 @@ void CLevel::SetGameTimeFactor(ALife::_TIME_ID GameTime, const float fTimeFactor
 
 void CLevel::SetEnvironmentGameTimeFactor(u64 const& GameTime, float const& fTimeFactor)
 {
-	if (!game)
-		return;
-
-	game->SetEnvironmentGameTimeFactor(GameTime, fTimeFactor);
-}
-bool CLevel::IsServer ()
-{
-	if (!Server || IsDemoPlayStarted()) return false;
-	//return (Server->GetClientsCount() != 0);
-	return true;
-}
-
-bool CLevel::IsClient ()
-{
-	if (IsDemoPlayStarted())
-		return true;
-	
-	if (Server)
-		return false;
-	
-	//return (Server->GetClientsCount() == 0);
-	return true;
+	if (game)
+	{
+		game->SetEnvironmentGameTimeFactor(GameTime, fTimeFactor);
+	}
 }
 
 void CLevel::OnAlifeSimulatorUnLoaded()
@@ -1170,11 +1103,6 @@ void CLevel::OnAlifeSimulatorLoaded()
 void CLevel::OnSessionTerminate		(LPCSTR reason)
 {
 	MainMenu()->OnSessionTerminate(reason);
-}
-
-u32	GameID()
-{
-	return Game().Type();
 }
 
 CZoneList* CLevel::create_hud_zones_list()

@@ -15,7 +15,7 @@
 #include "alife_spawn_registry.h"
 #include "alife_object_registry.h"
 #include "ef_storage.h"
-#include "xrserver.h"
+#include "game_sv_Single.h"
 #include "level.h"
 #include "graph_engine.h"
 #include "../xrEngine/x_ray.h"
@@ -53,7 +53,7 @@ public:
 	}
 };
 
-CALifeUpdateManager::CALifeUpdateManager	(xrServer *server, LPCSTR section) :
+CALifeUpdateManager::CALifeUpdateManager	(game_sv_Single *server, LPCSTR section) :
 	CALifeSwitchManager		(server,section),
 	CALifeSurgeManager		(server,section),
 	CALifeStorageManager	(server,section),

@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "xrserver.h"
+#include "game_sv_Single.h"
 #include "xrmessages.h"
-#include "xrserver_objects.h"
+#include "xrServer_objects.h"
 
-void xrServer::Perform_transfer(NET_Packet &PR, NET_Packet &PT,	CSE_Abstract* what, CSE_Abstract* from, CSE_Abstract* to)
+void game_sv_Single::Perform_transfer(NET_Packet &PR, NET_Packet &PT,	CSE_Abstract* what, CSE_Abstract* from, CSE_Abstract* to)
 {
 	// Sanity check
 	R_ASSERT	(what && from && to);
@@ -37,7 +37,7 @@ void xrServer::Perform_transfer(NET_Packet &PR, NET_Packet &PT,	CSE_Abstract* wh
 
 }
 
-void xrServer::Perform_reject(CSE_Abstract* what, CSE_Abstract* from, int delta)
+void game_sv_Single::Perform_reject(CSE_Abstract* what, CSE_Abstract* from, int delta)
 {
 	R_ASSERT				(what && from);
 	R_ASSERT				(what->ID_Parent == from->ID);

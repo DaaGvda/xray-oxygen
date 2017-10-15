@@ -2,11 +2,11 @@
 #include "game_sv_single.h"
 #include "alife_simulator.h"
 #include "xrServer_Objects.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "xrmessages.h"
 #include "ai_space.h"
 
-void xrServer::Perform_destroy	(CSE_Abstract* object, u32 mode)
+void game_sv_Single::Perform_destroy	(CSE_Abstract* object, u32 mode)
 {
 	R_ASSERT				(object);
 	R_ASSERT				(object->ID_Parent == 0xffff);
@@ -41,7 +41,7 @@ void xrServer::Perform_destroy	(CSE_Abstract* object, u32 mode)
 	SendBroadcast			(BroadcastCID,P,mode);
 }
 
-void xrServer::SLS_Clear		()
+void game_sv_Single::SLS_Clear		()
 {
 	u32									mode = net_flags(TRUE,TRUE);
 	while (!entities.empty())

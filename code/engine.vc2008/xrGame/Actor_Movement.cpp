@@ -555,22 +555,15 @@ bool CActor::CanRun()
 
 bool CActor::CanSprint()
 {
-	bool can_Sprint = CanAccelerate()
-						&& !conditions().IsCantSprint()
-						&& Game().PlayerCanSprint(this)
-						&& CanRun()
-						&& !(mstate_real&mcLStrafe || mstate_real&mcRStrafe)
-						&& InventoryAllowSprint()
-						;
-
+	const bool can_Sprint = CanAccelerate() && !conditions().IsCantSprint() && CanRun() 
+		&& !(mstate_real&mcLStrafe || mstate_real&mcRStrafe) && InventoryAllowSprint();
 	return can_Sprint && (m_block_sprint_counter<=0);
 }
 
 bool CActor::CanJump()
 {
-	bool can_Jump = 
-		!character_physics_support()->movement()->PHCapture() &&((mstate_real&mcJump)==0) && (m_fJumpTime<=0.f) 
-		&& !m_bJumpKeyPressed &&!IsZoomAimingMode();
+	const bool can_Jump = !character_physics_support()->movement()->PHCapture() &&(!(mstate_real&mcJump)) 
+		&& (m_fJumpTime<=0.f) && !m_bJumpKeyPressed &&!IsZoomAimingMode();
 
 	return can_Jump;
 }

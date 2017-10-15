@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Level.h"
 #include "Level_Bullet_Manager.h"
-#include "xrserver.h"
+#include "game_sv_Single.h"
 #include "xrmessages.h"
 #include "game_cl_base.h"
 #include "PHCommander.h"
@@ -28,47 +28,34 @@ const int max_objects_size_in_save	= 8*1024;
 
 extern bool	g_b_ClearGameCaptions;
 
-void CLevel::remove_objects	()
+void CLevel::remove_objects()
 {
 	BOOL						b_stored = psDeviceFlags.test(rsDisableObjectsAsCrows);
-	
+
 	int loop = 5;
-	while(loop)
+	while (loop)
 	{
-		if (OnServer()) 
+		//Server->SLS_Clear();
+		for (int i = 0; i < 20; ++i)
 		{
-			R_ASSERT				(Server);
-			Server->SLS_Clear		();
-		}
-
-		if (OnClient())
-			ClearAllObjects			();
-
-		for (int i=0; i<20; ++i) 
-		{
-			snd_Events.clear		();
-			psNET_Flags.set			(NETFLAG_MINIMIZEUPDATES,FALSE);
+			snd_Events.clear();
+			psNET_Flags.set(NETFLAG_MINIMIZEUPDATES, FALSE);
 			// ugly hack for checks that update is twice on frame
 			// we need it since we do updates for checking network messages
 			++(Device.dwFrame);
-			psDeviceFlags.set		(rsDisableObjectsAsCrows,TRUE);
-			ClientReceive			();
-			ProcessGameEvents		();
-			Objects.Update			(false);
-			#ifdef DEBUG
-			Msg						("Update objects list...");
-			#endif // #ifdef DEBUG
+			psDeviceFlags.set(rsDisableObjectsAsCrows, TRUE);
+			ClientReceive();
+			ProcessGameEvents();
+			Objects.Update(false);
 			Objects.dump_all_objects();
 		}
 
-		if(Objects.o_count()==0)
-			break;
-		else
+		if (Objects.o_count())
 		{
 			--loop;
-			Msg						("Objects removal next loop. Active objects count=%d", Objects.o_count());
+			Msg("Objects removal next loop. Active objects count=%d", Objects.o_count());
 		}
-
+		else break;
 	}
 
 	BulletManager().Clear		();
@@ -152,14 +139,13 @@ void CLevel::net_Stop		()
 	IGame_Level::net_Stop		();
 	IPureClient::Disconnect		();
 
-	if (Server) 
+	/*if (Server) 
 	{
 		Server->Disconnect		();
 		xr_delete				(Server);
 	}
-
-	if (!g_dedicated_server)
-		ai().script_engine().collect_all_garbage	();
+	*/
+	ai().script_engine().collect_all_garbage();
 
 #ifdef DEBUG
 	show_animation_stats		();
@@ -212,13 +198,6 @@ u32	CLevel::Objects_net_Save	(NET_Packet* _Packet, u32 start, u32 max_object_siz
 			Packet.w_u16			(u16(P->ID())	);
 			Packet.w_chunk_open16	(position);
 			P->net_Save				(Packet);
-#ifdef DEBUG
-			u32 size				= u32		(Packet.w_tell()-position)-sizeof(u16);
-			if				(size>=65536)			{
-				Debug.fatal	(DEBUG_INFO,"Object [%s][%d] exceed network-data limit\n size=%d, Pend=%d, Pstart=%d",
-					*P->cName(), P->ID(), size, Packet.w_tell(), position);
-			}
-#endif
 			Packet.w_chunk_close16	(position);
 			if (max_object_size >= (NET_PacketSizeLimit - Packet.w_tell()))
 				break;
@@ -260,20 +239,22 @@ void CLevel::Send(NET_Packet& P, u32 dwFlags, u32 dwTimeout)
 
 		ClientID	_clid;
 		_clid.set(1);
-		Server->OnMessage(P, _clid);
+		//Server->OnMessage(P, _clid);
 	}
 }
 
 void CLevel::net_Update()
 {
-	if(game_configured){
+	if(game_configured)
+	{
 		// If we have enought bandwidth - replicate client data on to server
 		Device.Statistic->netClient2.Begin	();
 		ClientSend					();
 		Device.Statistic->netClient2.End		();
 	}
 	// If server - perform server-update
-	if (Server && OnServer())	{
+	if (Server)
+	{
 		Device.Statistic->netServer.Begin();
 		Server->Update					();
 		Device.Statistic->netServer.End	();
@@ -282,7 +263,7 @@ void CLevel::net_Update()
 
 struct _NetworkProcessor : public pureFrame
 {
-	virtual void	_BCL OnFrame	( )
+	virtual void _BCL OnFrame()
 	{
 		if (g_pGameLevel && !Device.Paused() )	g_pGameLevel->net_Update();
 	}
@@ -389,9 +370,6 @@ void CLevel::ClearAllObjects()
 		//-------------------------------------------------------------
 		ParentFound = true;
 		//-------------------------------------------------------------
-#ifdef DEBUG
-		Msg ("Destruction of %s[%d]", *(pObj->cNameSect()), pObj->ID());
-#endif
 	};
 	ProcessGameEvents();
 };

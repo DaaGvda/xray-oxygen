@@ -6,7 +6,7 @@
 #include "PHSkeleton.h"
 #include "../xrScripts/export/script_export_space.h"
 #include "animation_script_callback.h"
-#include "xrserver_objects_alife.h"
+#include "xrServer_objects_alife.h"
 
 class CSE_ALifeObjectPhysic;
 class IPhysicsElementEx;

@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "xrserver.h"
-#include "xrserver_objects.h"
-#include "xrserver_objects_alife_monsters.h"
+#include "game_sv_Single.h"
+#include "xrServer_objects.h"
+#include "xrServer_objects_alife_monsters.h"
 #include "xrServer_svclient_validation.h"
 
 void ReplaceOwnershipHeader	(NET_Packet& P)
@@ -11,7 +11,7 @@ void ReplaceOwnershipHeader	(NET_Packet& P)
     std::memcpy(&P.B.data[6],&NewType,2);
 };
 
-void xrServer::Process_event_ownership(NET_Packet& P, ClientID sender, u32 time, u16 ID, BOOL bForced)
+void game_sv_Single::Process_event_ownership(NET_Packet& P, ClientID sender, u32 time, u16 ID, BOOL bForced)
 {
 	u32 MODE			= net_flags(TRUE,TRUE, FALSE, TRUE);
 

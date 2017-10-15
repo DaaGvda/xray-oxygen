@@ -1,14 +1,13 @@
 #include "stdafx.h"
 #include "xrServer_Objects_ALife_All.h"
 #include "level.h"
-#include "game_cl_base.h"
 #include "net_queue.h"
 #include "ai_space.h"
 #include "game_level_cross_table.h"
 #include "level_graph.h"
 #include "client_spawn_manager.h"
 #include "../xrEngine/xr_object.h"
-#include "../xrEngine/IGame_Persistent.h"
+#include "GameObject.h"
 
 void CLevel::cl_Process_Spawn(NET_Packet& P)
 {
@@ -31,21 +30,10 @@ void CLevel::cl_Process_Spawn(NET_Packet& P)
 		return;
 	}
 //-------------------------------------------------
-//.	Msg ("M_SPAWN - %s[%d][%x] - %d %d", *s_name,  E->ID, E,E->ID_Parent, Device.dwFrame);
-//-------------------------------------------------
 	//force object to be local for server client
-	if (OnServer())		{
-		E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
-	};
-
-	/*
-	game_spawn_queue.push_back(E);
-	if (g_bDebugEvents)		ProcessGameSpawns();
-	/*/
+	E->s_flags.set(M_SPAWN_OBJECT_LOCAL, TRUE);
 	g_sv_Spawn					(E);
-
 	F_entity_Destroy			(E);
-	//*/
 };
 
 void CLevel::g_cl_Spawn		(LPCSTR name, u8 rp, u16 flags, Fvector pos)
@@ -93,12 +81,6 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 	}
 #endif // DEBUG_MEMORY_MANAGER
 	//-----------------------------------------------------------------
-//	CTimer		T(false);
-
-#ifdef DEBUG
-//	Msg					("* CLIENT: Spawn: %s, ID=%d", *E->s_name, E->ID);
-#endif
-
 	// Optimization for single-player only	- minimize traffic between client and server
 	psNET_Flags.set	(NETFLAG_MINIMIZEUPDATES,TRUE);
 
@@ -125,7 +107,6 @@ void CLevel::g_sv_Spawn		(CSE_Abstract* E)
 #endif // DEBUG_MEMORY_MANAGER
 		if(!g_dedicated_server)
 			client_spawn_manager().callback(O);
-		//Msg			("--spawn--SPAWN: %f ms",1000.f*T.GetAsync());
 		
 		if ((E->s_flags.is(M_SPAWN_OBJECT_LOCAL)) && 
 			(E->s_flags.is(M_SPAWN_OBJECT_ASPLAYER)) )	

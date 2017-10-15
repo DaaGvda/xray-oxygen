@@ -2,7 +2,7 @@
 #include "screenshot_server.h"
 #include "xrMessages.h"
 #include "Level.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "game_sv_base.h"
 #include "../xrCore/fastdelegate.h"
 

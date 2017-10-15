@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "xrserver.h"
+#include "game_sv_Single.h"
 
-BOOL xrServer::PerformRP	(CSE_Abstract* EEE)
+BOOL game_sv_Single::PerformRP	(CSE_Abstract* EEE)
 {
 	/*
 	// Get LIST of respawn points

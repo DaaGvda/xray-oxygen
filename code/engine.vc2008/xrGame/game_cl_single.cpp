@@ -3,18 +3,43 @@
 #include "UIGameSP.h"
 #include "actor.h"
 #include "clsid_game.h"
+#include "Level.h"
 
 using namespace luabind;
 
 ESingleGameDifficulty g_SingleGameDifficulty = egdStalker;
 
-xr_token	difficulty_type_token						[ ]={
-	{ "gd_novice",						egdNovice									},
-	{ "gd_stalker",						egdStalker									},
-	{ "gd_veteran",						egdVeteran									},
-	{ "gd_master",						egdMaster									},
-	{ 0,							0											}
+xr_token	difficulty_type_token[] = {
+	{ "gd_novice",	 egdNovice	},
+	{ "gd_stalker",	 egdStalker	},
+	{ "gd_veteran",	 egdVeteran	},
+	{ "gd_master",	 egdMaster	},
+	{ 0,			 0			}};
+
+void game_cl_Single::SendPickUpEvent(u16 ID_who, u16 ID_what)
+{
+	CObject* O = Level().Objects.net_Find(ID_what);
+	Level().m_feel_deny.feel_touch_deny(O, 1000);
+
+	NET_Packet		P;
+	u_EventGen(P, GE_OWNERSHIP_TAKE, ID_who);
+	P.w_u16(ID_what);
+	u_EventSend(P);
 };
+
+void game_cl_Single::SetEnvironmentGameTimeFactor(u64 GameTime, const float fTimeFactor)
+{
+	m_qwEStartGameTime = GameTime;
+	m_qwEStartProcessorTime = Level().timeServer_Async();
+	m_fETimeFactor = fTimeFactor;
+}
+
+void game_cl_Single::SetGameTimeFactor(u64 GameTime, const float fTimeFactor)
+{
+	m_qwStartGameTime = GameTime;
+	m_qwStartProcessorTime = Level().timeServer_Async();
+	m_fTimeFactor = fTimeFactor;
+}
 
 game_cl_Single::game_cl_Single()
 {
@@ -33,11 +58,6 @@ CUIGameCustom* game_cl_Single::createGameUI()
 	return					pUIGame;
 }
 
-char*	game_cl_Single::getTeamSection(int Team)
-{
-	return NULL;
-};
-
 void game_cl_Single::OnDifficultyChanged()
 {
 	Actor()->OnDifficultyChanged();
@@ -46,57 +66,41 @@ void game_cl_Single::OnDifficultyChanged()
 #include "ai_space.h"
 #include "alife_simulator.h"
 #include "alife_time_manager.h"
-ALife::_TIME_ID game_cl_Single::GetGameTime		()
+u64 game_cl_Single::GetGameTime()
 {
-	if (ai().get_alife() && ai().alife().initialized())
-		return(ai().alife().time_manager().game_time());
-	else
-		return(inherited::GetGameTime());
+	return(ai().alife().time_manager().game_time());
 }
 
-ALife::_TIME_ID game_cl_Single::GetStartGameTime	()
+u64 game_cl_Single::GetStartGameTime()
 {
-	if (ai().get_alife() && ai().alife().initialized())
-		return(ai().alife().time_manager().start_game_time());
-	else
-		return(inherited::GetStartGameTime());
+	return(ai().alife().time_manager().start_game_time());
 }
 
-float game_cl_Single::GetGameTimeFactor		()
+float game_cl_Single::GetGameTimeFactor()
 {
-	if (ai().get_alife() && ai().alife().initialized())
-		return(ai().alife().time_manager().time_factor());
-	else
-		return(inherited::GetGameTimeFactor());
+	return(ai().alife().time_manager().time_factor());
 }
 
 void game_cl_Single::SetGameTimeFactor(const float fTimeFactor)
 {
-	Level().Server->game->SetGameTimeFactor(fTimeFactor);
+	const u64 GameTime = m_qwStartGameTime + m_fTimeFactor*float(Level().timeServer_Async() - m_qwStartProcessorTime);
+	SetGameTimeFactor(GameTime, fTimeFactor);
 }
 
-ALife::_TIME_ID game_cl_Single::GetEnvironmentGameTime	()
+u64 game_cl_Single::GetEnvironmentGameTime	()
 {
-	if (ai().get_alife() && ai().alife().initialized())
 		return	(ai().alife().time_manager().game_time());
-	else
-		return	(inherited::GetEnvironmentGameTime());
 }
 
 float game_cl_Single::GetEnvironmentGameTimeFactor		()
 {
-	if (ai().get_alife() && ai().alife().initialized())
 		return	(ai().alife().time_manager().time_factor());
-	else
-		return	(inherited::GetEnvironmentGameTimeFactor());
 }
 
-void game_cl_Single::SetEnvironmentGameTimeFactor		(const float fTimeFactor)
+void game_cl_Single::SetEnvironmentGameTimeFactor(const float fTimeFactor)
 {
-	if (ai().get_alife() && ai().alife().initialized())
-		Level().Server->game->SetGameTimeFactor(fTimeFactor);
-	else
-		inherited::SetEnvironmentGameTimeFactor(fTimeFactor);
+	const u64 GameTime = m_qwStartGameTime + m_fTimeFactor*float(Level().timeServer_Async() - m_qwStartProcessorTime);
+	SetGameTimeFactor(GameTime, fTimeFactor);
 }
 
 #pragma optimize("s",on)

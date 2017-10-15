@@ -777,9 +777,6 @@
     <ClInclude Include="PropertiesListHelper.h">
       <Filter>ALife\Shared\ServerEntities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\xrServerEntities\game_base_space.h">
-      <Filter>ALife\Shared\Server</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\xrServerEntities\PHNetState.h">
       <Filter>ALife\Shared\Server</Filter>
     </ClInclude>

@@ -5,7 +5,7 @@
 #include "PHDestroyable.h"
 #include "actor.h"
 #include "ParticlesObject.h"
-#include "xrserver_objects_alife_monsters.h"
+#include "xrServer_objects_alife_monsters.h"
 #include "../xrEngine/LightAnimLibrary.h"
 #include "level.h"
 #include "game_cl_base.h"
@@ -1121,14 +1121,11 @@ void CCustomZone::OnStateSwitch	(EZoneState new_state)
 
 void CCustomZone::SwitchZoneState(EZoneState new_state)
 {
-	if (OnServer())
-	{
-		// !!! Just single entry for given state !!!
-		NET_Packet		P;
-		u_EventGen		(P,GE_ZONE_STATE_CHANGE,ID());
-		P.w_u8			(u8(new_state));
-		u_EventSend		(P);
-	};
+	// !!! Just single entry for given state !!!
+	NET_Packet		P;
+	u_EventGen(P, GE_ZONE_STATE_CHANGE, ID());
+	P.w_u8(u8(new_state));
+	u_EventSend(P);
 
 	m_iPreviousStateTime = m_iStateTime = 0;
 }
@@ -1235,29 +1232,19 @@ u32	CCustomZone::ef_weapon_type() const
 	return	(m_ef_weapon_type);
 }
 
-void CCustomZone::CreateHit	(	u16 id_to, 
-								u16 id_from, 
-								const Fvector& hit_dir, 
-								float hit_power, 
-								s16 bone_id, 
-								const Fvector& pos_in_bone, 
-								float hit_impulse, 
-								ALife::EHitType hit_type)
+void CCustomZone::CreateHit(u16 id_to, u16 id_from, const Fvector& hit_dir, float hit_power, s16 bone_id, const Fvector& pos_in_bone, float hit_impulse, ALife::EHitType hit_type)
 {
-	if (OnServer())
-	{
-		if(m_owner_id != u32(-1) )
-			id_from	= (u16)m_owner_id;
+	if (m_owner_id != u32(-1))
+		id_from = (u16)m_owner_id;
 
-		NET_Packet			l_P;
-		Fvector hdir		= hit_dir;
-		SHit Hit			= SHit(hit_power, hdir, this, bone_id, pos_in_bone, hit_impulse, hit_type, 0.0f, false);		
-		Hit.GenHeader		(GE_HIT, id_to);
-		Hit.whoID			= id_from;
-		Hit.weaponID		= this->ID();
-		Hit.Write_Packet	(l_P);
-		u_EventSend			(l_P);
-	};
+	NET_Packet			l_P;
+	Fvector hdir = hit_dir;
+	SHit Hit = SHit(hit_power, hdir, this, bone_id, pos_in_bone, hit_impulse, hit_type, 0.0f, false);
+	Hit.GenHeader(GE_HIT, id_to);
+	Hit.whoID = id_from;
+	Hit.weaponID = this->ID();
+	Hit.Write_Packet(l_P);
+	u_EventSend(l_P);
 }
 
 void CCustomZone::net_Relcase(CObject* O)
@@ -1411,18 +1398,6 @@ void CCustomZone::CalcDistanceTo(const Fvector& P, float& dist, float& radius)
 		radius			= sr;
 		return;
 	}
-/*
-	//2nd quick test
-	Fvector				SC;
-	float				dist2;
-	XF.transform_tiny	(SC,CFORM()->getSphere().P);
-	dist2				= P.distance_to(SC);
-	if(dist2>sr)
-	{
-		radius		= sr;
-		return;
-	}
-*/
 	//full test
 	const Fmatrix& XF	= XFORM();
 	xr_vector<CCF_Shape::shape_def>& Shapes = Sh->Shapes();

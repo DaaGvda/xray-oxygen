@@ -12,7 +12,7 @@
 #include "game_cl_base.h"
 #include "stalker_movement_manager_smart_cover.h"
 #include "Inventory.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "autosave_manager.h"
 
 #include "actor.h"
@@ -164,7 +164,7 @@ void CLevel::IR_OnKeyboardPress	(int key)
 #endif //DEBUG
 		)	return;
 
-	if ( game && game->OnKeyboardPress(get_binded_action(key)) )	return;
+	//if ( game && game->OnKeyboardPress(get_binded_action(key)) )	return;
 
 #ifndef MASTER_GOLD
 	switch (key) {
@@ -361,7 +361,7 @@ void CLevel::IR_OnKeyboardRelease(int key)
 {
 	if (!bReady || g_bDisableAllInput	)								return;
 	if ( CurrentGameUI() && CurrentGameUI()->IR_UIOnKeyboardRelease(key)) return;
-	if (game && game->OnKeyboardRelease(get_binded_action(key)) )		return;
+	//if (game && game->OnKeyboardRelease(get_binded_action(key)) )		return;
 	if (Device.Paused() 
 #ifdef DEBUG
 		&& !psActorFlags.test(AF_NO_CLIP)

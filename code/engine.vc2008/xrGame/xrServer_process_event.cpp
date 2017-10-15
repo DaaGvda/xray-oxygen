@@ -1,8 +1,8 @@
 #include "stdafx.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "game_sv_single.h"
 #include "alife_simulator.h"
-#include "xrserver_objects.h"
+#include "xrServer_objects.h"
 #include "game_base.h"
 #include "game_cl_base.h"
 #include "ai_space.h"
@@ -10,7 +10,7 @@
 #include "xrServer_Objects_ALife_Items.h"
 #include "xrServer_Objects_ALife_Monsters.h"
 
-void xrServer::Process_event	(NET_Packet& P, ClientID sender)
+void game_sv_Single::Process_event	(NET_Packet& P, ClientID sender)
 {
 #	ifdef SLOW_VERIFY_ENTITIES
 			VERIFY					(verify_entities());

@@ -14,9 +14,7 @@
 #include "level.h"
 #include "xrMessages.h"
 #include "../xrEngine/gamemtllib.h"
-//#include "tri-colliderknoopc/dTriList.h"
 #include "../Include/xrRender/RenderVisual.h"
-//#include "CalculateTriangle.h"
 #include "actor.h"
 #ifdef DEBUG
 #include "PHDebug.h"
@@ -352,7 +350,6 @@ void CCustomRocket::PlayContact()
 		m_pPhysicsShell->set_ObjectContactCallback(NULL);
 		m_pPhysicsShell->Disable();
 	}
-//	if (OnClient()) return;
 
 	Position().set(m_contact.pos);
 	m_contact.contact=false;
@@ -363,13 +360,11 @@ void CCustomRocket::OnH_B_Chield		()
 {
 	VERIFY(m_eState == eInactive);
 	inherited::OnH_B_Chield		();
-//	Msg("! CCustomRocket::OnH_B_Chield called, id[%d] frame[%d]",ID(),Device.dwFrame);
 }
 void CCustomRocket::OnH_A_Chield		()
 {
 	VERIFY(m_eState == eInactive);
 	inherited::OnH_A_Chield		();
-//	Msg("! CCustomRocket::OnH_A_Chield called, id[%d] frame[%d]",ID(),Device.dwFrame);
 }
 
 
@@ -640,16 +635,6 @@ void CCustomRocket::StopFlying				()
 
 void	CCustomRocket::OnEvent(NET_Packet& P, u16 type)
 {
-	switch (type)
-	{
-	case GE_GRENADE_EXPLODE:
-		{
-			if (m_eState != eCollide && OnClient())
-			{
-				CCustomRocket::Contact(Position(), Direction());
-			};
-		}break;
-	}
 	inherited::OnEvent(P,type);
 };
 #ifdef DEBUG

@@ -1,68 +1,6 @@
 #include "stdafx.h"
 #include "xrServer_info.h"
 #include "level.h"
-#include "xrserver.h"
-
-#define SERVER_LOGO_FN	"server_logo.jpg"
-#define SERVER_RULES_FN "server_rules.txt"
-
-server_info_uploader& xrServer::GetServerInfoUploader()
-{
-	VERIFY(m_server_logo && m_server_rules);
-
-	struct free_info_searcher
-	{
-		bool operator()(server_info_uploader const * uplinfo)
-		{
-			return !uplinfo->is_active();
-		};
-	}; //struct free_info_searcher
-	
-	info_uploaders_t::iterator tmp_iter = std::find_if(
-		m_info_uploaders.begin(),
-		m_info_uploaders.end(),
-		free_info_searcher()
-	);
-
-	server_info_uploader* result = NULL;
-	if (tmp_iter != m_info_uploaders.end())
-	{
-		result = *tmp_iter;
-	} else
-	{
-		result = xr_new<server_info_uploader>(m_file_transfers);
-		m_info_uploaders.push_back(result);
-	}
-	return *result;
-}
-
-void xrServer::SendServerInfoToClient(ClientID const & new_client) //WARNING ! this function is thread unsafe !!!
-{
-	SendConfigFinished(new_client);
-}
-
-void xrServer::LoadServerInfo()
-{
-	if (!FS.exist("$app_data_root$", SERVER_LOGO_FN) ||
-		!FS.exist("$app_data_root$", SERVER_RULES_FN))
-	{
-		return;
-	}
-	m_server_logo = FS.r_open("$app_data_root$", SERVER_LOGO_FN);
-	if (!m_server_logo)
-	{
-		Msg("! ERROR: failed to open server logo file %s", SERVER_LOGO_FN);
-		return;
-	}
-	m_server_rules = FS.r_open("$app_data_root$", SERVER_RULES_FN);
-	if (!m_server_rules)
-	{
-		Msg("! ERROR: failed to open server rules file %s", SERVER_RULES_FN);
-		FS.r_close(m_server_logo);
-		m_server_logo = NULL;
-		return;
-	}
-}
 
 server_info_uploader::server_info_uploader(file_transfer::server_site* file_transfers) :
 	m_state(eUploadNotActive),

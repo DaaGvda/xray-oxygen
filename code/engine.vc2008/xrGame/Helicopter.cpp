@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "helicopter.h"
-#include "xrserver_objects_alife.h"
+#include "xrServer_objects_alife.h"
 #include "../xrphysics/PhysicsShell.h"
 #include "level.h"
 #include "ai_sounds.h"

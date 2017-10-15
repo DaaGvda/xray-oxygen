@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
+#include "game_sv_single.h"
 #include "alife_simulator_base.h"
 #include "alife_simulator_header.h"
 #include "alife_time_manager.h"
@@ -18,7 +19,6 @@
 #include "alife_smart_terrain_registry.h"
 #include "alife_group_registry.h"
 #include "alife_registry_container.h"
-#include "xrserver.h"
 #include "level_graph.h"
 #include "inventory_upgrade_manager.h"
 #include "level.h"
@@ -31,9 +31,9 @@
 
 using namespace ALife;
 
-CALifeSimulatorBase::CALifeSimulatorBase	(xrServer *server, LPCSTR section)
+CALifeSimulatorBase::CALifeSimulatorBase(game_sv_Single* serv, LPCSTR section)
 {
-	m_server					= server;
+	m_server = serv;
 	m_initialized				= false;
 	m_header					= 0;
 	m_time_manager				= 0;
@@ -102,7 +102,7 @@ void CALifeSimulatorBase::reload			(LPCSTR section)
 	Msg("#SE_DBG: CALifeSimulatorBase '%s' ->m_objects = 0x%p ", section, (LPVOID)m_objects);
 #endif
 }
-
+#include "sv_idgen.hpp"
 CSE_Abstract *CALifeSimulatorBase::spawn_item	(LPCSTR section, const Fvector &position, u32 level_vertex_id, GameGraph::_GRAPH_ID game_vertex_id, u16 parent_id, bool registration)
 {
 	CSE_Abstract				*abstract = F_entity_Create(section);
@@ -111,7 +111,7 @@ CSE_Abstract *CALifeSimulatorBase::spawn_item	(LPCSTR section, const Fvector &po
 	abstract->s_name			= section;
 //.	abstract->s_gameid			= u8(GAME_SINGLE);
 	abstract->s_RP				= 0xff;
-	abstract->ID				= server().PerformIDgen(0xffff);
+	abstract->ID				= m_tID_Generator.tfGetID(0xffff);
 	abstract->ID_Parent			= parent_id;
 	abstract->ID_Phantom		= 0xffff;
 	abstract->o_Position		= position;
@@ -169,7 +169,7 @@ CSE_Abstract *CALifeSimulatorBase::create(CSE_ALifeGroupAbstract *tpALifeGroupAb
 	k->UPDATE_Read				(tNetPacket);
 	k->s_name					= S;
 	k->m_tSpawnID				= j->m_tSpawnID;
-	k->ID						= server().PerformIDgen(0xffff);
+	k->ID						= m_tID_Generator.tfGetID(0xffff);
 	k->m_bDirectControl			= false;
 	k->m_bALifeControl			= true;
 	
@@ -213,7 +213,7 @@ void CALifeSimulatorBase::create(CSE_ALifeDynamicObject *&i, CSE_ALifeDynamicObj
 	if (!graph().actor() && smart_cast<CSE_ALifeCreatureActor*>(i))
 		i->ID					= 0;
 	else
-		i->ID					= server().PerformIDgen(0xffff);
+		i->ID					= m_tID_Generator.tfGetID(0xffff);
 
 	register_object				(i,true);
 	i->m_bALifeControl			= true;
@@ -249,10 +249,6 @@ void CALifeSimulatorBase::create	(CSE_ALifeObject *object)
 		return;
 	}
 	VERIFY						(dynamic_object->m_bOnline);
-
-#ifdef DEBUG
-//	Msg							("Creating object from client spawn [%d][%d][%s][%s]",dynamic_object->ID,dynamic_object->ID_Parent,dynamic_object->name(),dynamic_object->name_replace());
-#endif
 
 	if (0xffff != dynamic_object->ID_Parent) {
 		u16							id = dynamic_object->ID_Parent;
@@ -301,7 +297,10 @@ void CALifeSimulatorBase::release	(CSE_Abstract *abstract, bool alife_query)
 	object->m_bALifeControl			= false;
 
 	if (alife_query)
-		server().entity_Destroy		(abstract);
+	{
+		m_server->entities.erase(abstract->ID);
+		m_tID_Generator.vfFreeID(abstract->ID, Device.TimerAsync());
+	}
 }
 
 void CALifeSimulatorBase::append_item_vector(OBJECT_VECTOR &tObjectVector, ITEM_P_VECTOR &tItemList)

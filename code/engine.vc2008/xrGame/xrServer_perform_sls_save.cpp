@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "xrserver.h"
+#include "game_sv_Single.h"
 #include "xrmessages.h"
-#include "xrserver_objects.h"
+#include "xrServer_objects.h"
 
-void xrServer::SLS_Save	(IWriter& fs)
+void game_sv_Single::SLS_Save	(IWriter& fs)
 {
 	// Generate spawn+update
 	NET_Packet		P;

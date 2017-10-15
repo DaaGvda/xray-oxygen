@@ -2086,9 +2086,6 @@
     <Filter Include="Core\Server\filetransfer">
       <UniqueIdentifier>{0e6e2684-1723-4da8-b39e-67c9e8cca164}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Server\ServerConnect">
-      <UniqueIdentifier>{da77a547-a6e5-4fd7-8b22-22b7827af41f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="AI\AScript\ScriptClasses\UI\Common">
       <UniqueIdentifier>{0a88ac1d-653a-4ba9-b9f2-62f82c0e2824}</UniqueIdentifier>
     </Filter>
@@ -5874,12 +5871,6 @@
     <ClInclude Include="screenshot_server.h">
       <Filter>Core\Server</Filter>
     </ClInclude>
-    <ClInclude Include="xrClientsPool.h">
-      <Filter>Core\Server</Filter>
-    </ClInclude>
-    <ClInclude Include="xrServer.h">
-      <Filter>Core\Server</Filter>
-    </ClInclude>
     <ClInclude Include="xrServer_info.h">
       <Filter>Core\Server</Filter>
     </ClInclude>
@@ -5910,32 +5901,8 @@
     <ClInclude Include="..\xrServerEntities\xrEProps.h">
       <Filter>Core\Server\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="game_base.h">
-      <Filter>Core\Server\Games</Filter>
-    </ClInclude>
-    <ClInclude Include="game_base_kill_type.h">
-      <Filter>Core\Server\Games</Filter>
-    </ClInclude>
-    <ClInclude Include="game_base_menu_events.h">
-      <Filter>Core\Server\Games</Filter>
-    </ClInclude>
-    <ClInclude Include="..\xrServerEntities\game_base_space.h">
-      <Filter>Core\Server\Games</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_single.h">
-      <Filter>Core\Server\Games\client\single</Filter>
-    </ClInclude>
     <ClInclude Include="game_cl_base.h">
       <Filter>Core\Server\Games\client\base</Filter>
-    </ClInclude>
-    <ClInclude Include="game_cl_base_weapon_usage_statistic.h">
-      <Filter>Core\Server\Games\client\base</Filter>
-    </ClInclude>
-    <ClInclude Include="game_sv_base.h">
-      <Filter>Core\Server\Games\server</Filter>
-    </ClInclude>
-    <ClInclude Include="game_sv_event_queue.h">
-      <Filter>Core\Server\Games\server</Filter>
     </ClInclude>
     <ClInclude Include="xr_time.h">
       <Filter>Core\Server\Games\server</Filter>
@@ -6551,6 +6518,12 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="game_cl_single.h">
+      <Filter>Core\Server\Games\client\single</Filter>
+    </ClInclude>
+    <ClInclude Include="sv_idgen.hpp">
+      <Filter>AI\ALife\simulator_base</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -8768,19 +8741,7 @@
     <ClCompile Include="screenshot_server.cpp">
       <Filter>Core\Server</Filter>
     </ClCompile>
-    <ClCompile Include="xrClientsPool.cpp">
-      <Filter>Core\Server</Filter>
-    </ClCompile>
     <ClCompile Include="xrGame.cpp">
-      <Filter>Core\Server</Filter>
-    </ClCompile>
-    <ClCompile Include="xrServer.cpp">
-      <Filter>Core\Server</Filter>
-    </ClCompile>
-    <ClCompile Include="xrServer_balance.cpp">
-      <Filter>Core\Server</Filter>
-    </ClCompile>
-    <ClCompile Include="xrServer_info.cpp">
       <Filter>Core\Server</Filter>
     </ClCompile>
     <ClCompile Include="xrServer_updates_compressor.cpp">
@@ -8789,26 +8750,8 @@
     <ClCompile Include="xrServerMapSync.cpp">
       <Filter>Core\Server</Filter>
     </ClCompile>
-    <ClCompile Include="game_base.cpp">
-      <Filter>Core\Server\Games</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_single.cpp">
-      <Filter>Core\Server\Games\client\single</Filter>
-    </ClCompile>
     <ClCompile Include="game_cl_base.cpp">
       <Filter>Core\Server\Games\client\base</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_base_weapon_usage_statistic.cpp">
-      <Filter>Core\Server\Games\client\base</Filter>
-    </ClCompile>
-    <ClCompile Include="game_cl_base_weapon_usage_statistic_save.cpp">
-      <Filter>Core\Server\Games\client\base</Filter>
-    </ClCompile>
-    <ClCompile Include="game_sv_base.cpp">
-      <Filter>Core\Server\Games\server</Filter>
-    </ClCompile>
-    <ClCompile Include="game_sv_event_queue.cpp">
-      <Filter>Core\Server\Games\server</Filter>
     </ClCompile>
     <ClCompile Include="xr_time.cpp">
       <Filter>Core\Server\Games\server</Filter>
@@ -8921,9 +8864,6 @@
     <ClCompile Include="xrServer_process_event_reject.cpp">
       <Filter>Core\Server\ServerProcess</Filter>
     </ClCompile>
-    <ClCompile Include="xrServer_process_spawn.cpp">
-      <Filter>Core\Server\ServerProcess</Filter>
-    </ClCompile>
     <ClCompile Include="xrServer_process_update.cpp">
       <Filter>Core\Server\ServerProcess</Filter>
     </ClCompile>
@@ -8938,18 +8878,6 @@
     </ClCompile>
     <ClCompile Include="filetransfer_node.cpp">
       <Filter>Core\Server\filetransfer</Filter>
-    </ClCompile>
-    <ClCompile Include="xrServer_CL_connect.cpp">
-      <Filter>Core\Server\ServerConnect</Filter>
-    </ClCompile>
-    <ClCompile Include="xrServer_CL_disconnect.cpp">
-      <Filter>Core\Server\ServerConnect</Filter>
-    </ClCompile>
-    <ClCompile Include="xrServer_Connect.cpp">
-      <Filter>Core\Server\ServerConnect</Filter>
-    </ClCompile>
-    <ClCompile Include="xrServer_Disconnect.cpp">
-      <Filter>Core\Server\ServerConnect</Filter>
     </ClCompile>
     <ClCompile Include="ui_base.cpp">
       <Filter>AI\AScript\ScriptClasses\UI</Filter>
@@ -9509,9 +9437,6 @@
     <ClCompile Include="..\xrServerEntities\script_debugger.cpp">
       <Filter>AI\AScript\ScriptDebugger</Filter>
     </ClCompile>
-    <ClCompile Include="game_sv_item_respawner.cpp">
-      <Filter>Core\Server\Games\server</Filter>
-    </ClCompile>
     <ClCompile Include="ui\UIGameLog.cpp">
       <Filter>AI\AScript\ScriptClasses\UI\Common\MainIngame</Filter>
     </ClCompile>
@@ -9566,6 +9491,12 @@
     <ClCompile Include="raypick.cpp" />
     <ClCompile Include="stdafx.cpp">
       <Filter>Core</Filter>
+    </ClCompile>
+    <ClCompile Include="xrServer_info.cpp">
+      <Filter>Core\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="game_cl_single.cpp">
+      <Filter>Core\Server\Games\client\single</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

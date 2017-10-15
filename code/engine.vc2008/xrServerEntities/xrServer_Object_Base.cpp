@@ -9,11 +9,9 @@
 #include "stdafx.h"
 #include "xrServer_Objects.h"
 #include "xrMessages.h"
-#include "game_base_space.h"
 #include "script_value_container_impl.h"
 #include "clsid_game.h"
 #include "../FrayBuildConfig.hpp"
-//#include "../xrScripts/xrScripts.h"
 #include "../xrScripts/Export/script_net_packet.h"
 #pragma warning(push)
 #pragma warning(disable:4995)
@@ -74,9 +72,7 @@ CSE_Abstract::CSE_Abstract					(LPCSTR caSection)
 	ID							= 0xffff;
 	ID_Parent					= 0xffff;
 	ID_Phantom					= 0xffff;
-	owner						= 0;
 	m_gameType.SetDefaults		();
-//.	s_gameid					= 0;
 	s_RP						= 0xFE;			// Use supplied coords
 	s_flags.assign				(0);
 	s_name						= caSection;
@@ -422,19 +418,3 @@ bool CSE_Abstract::validate					()
 {
 	return						(true);
 }
-
-/**
-void CSE_Abstract::save_update				(NET_Packet &tNetPacket)
-{
-	tNetPacket.w				(&m_spawn_count,sizeof(m_spawn_count));
-	tNetPacket.w				(&m_last_spawn_time,sizeof(m_last_spawn_time));
-	tNetPacket.w				(&m_next_spawn_time,sizeof(m_next_spawn_time));
-}
-
-void CSE_Abstract::load_update				(NET_Packet &tNetPacket)
-{
-	tNetPacket.r				(&m_spawn_count,sizeof(m_spawn_count));
-	tNetPacket.r				(&m_last_spawn_time,sizeof(m_last_spawn_time));
-	tNetPacket.r				(&m_next_spawn_time,sizeof(m_next_spawn_time));
-}
-/**/

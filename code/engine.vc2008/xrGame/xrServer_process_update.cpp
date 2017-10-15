@@ -1,10 +1,10 @@
 #include "stdafx.h"
-#include "xrServer.h"
+#include "game_sv_Single.h"
 #include "xrServer_Objects.h"
 
 int	g_Dump_Update_Read = 0;
 
-void xrServer::Process_update(NET_Packet& P, ClientID sender)
+void game_sv_Single::Process_update(NET_Packet& P, ClientID sender)
 {
 	xrClientData* CL		= ID_to_client(sender);
 	R_ASSERT2				(CL,"Process_update client not found");
@@ -55,7 +55,7 @@ void xrServer::Process_update(NET_Packet& P, ClientID sender)
 
 }
 
-void xrServer::Process_save(NET_Packet& P, ClientID sender)
+void game_sv_Single::Process_save(NET_Packet& P, ClientID sender)
 {
 	xrClientData* CL		= ID_to_client(sender);
 	R_ASSERT2				(CL,"Process_save client not found");

@@ -9,7 +9,7 @@
 #pragma once
 
 #include "alife_simulator_base.h"
-#include "xrserver_space.h"
+#include "xrServer_space.h"
 
 class CSE_ALifeTrader;
 
@@ -29,7 +29,7 @@ protected:
 			void			spawn_new_objects			();
 
 public:
-	IC						CALifeSurgeManager			(xrServer *server, LPCSTR section);
+	IC						CALifeSurgeManager			(game_sv_Single *server, LPCSTR section);
 	virtual					~CALifeSurgeManager			();
 };
 

@@ -1,5 +1,4 @@
 #pragma once
-
 #include "../xrEngine/igame_level.h"
 #include "../xrEngine/IGame_Persistent.h"
 #include "../xrNetServer/net_client.h"
@@ -8,33 +7,32 @@
 #include "xrMessages.h"
 #include "alife_space.h"
 #include "../xrcore/xrDebug.h"
-#include "xrServer.h"
 #include "GlobalFeelTouch.hpp"
-
+#include "game_cl_single.h"
 #include "Level_network_map_sync.h"
 #include "traffic_optimization.h"
 
+class CHUDManager;
+class CParticlesObject;
+class game_cl_GameState;
+class NET_Queue_Event;
+class CSE_Abstract;
+class CSpaceRestrictionManager;
+class CSeniorityHierarchyHolder;
+class CClientSpawnManager;
+class CGameObject;
+class CAutosaveManager;
+class CPHCommander;
+class CLevelDebug;
+class CLevelSoundManager;
+class CGameTaskManager;
+class CZoneList;
+class message_filter;
+class demoplay_control;
+class demo_info;
+class game_sv_Single;
 
-class	CHUDManager;
-class	CParticlesObject;
-class	xrServer;
-class	game_cl_GameState;
-class	NET_Queue_Event;
-class	CSE_Abstract;
-class	CSpaceRestrictionManager;
-class	CSeniorityHierarchyHolder;
-class	CClientSpawnManager;
-class	CGameObject;
-class	CAutosaveManager;
-class	CPHCommander;
-class	CLevelDebug;
-class	CLevelSoundManager;
-class	CGameTaskManager;
-class	CZoneList;
-class	message_filter;
-class	demoplay_control;
-class	demo_info;
-
+const u32 NET_Latency = 50;		// time in (ms)
 #ifdef DEBUG
 	class	CDebugRenderer;
 #endif
@@ -132,7 +130,6 @@ private:
 	OBJECTS_LIST				pActors4CrPr;
 
 	CObject*					pCurrentControlEntity;
-	xrServer::EConnect			m_connect_server_err;
 public:
 	void						AddObject_To_Objects4CrPr	(CGameObject* pObj);
 	void						AddActor_To_Actors4CrPr		(CGameObject* pActor);
@@ -166,12 +163,12 @@ public:
 	using POVec = xr_vector<CParticlesObject*>;
 	POVec						m_StaticParticles;
 
-	game_cl_GameState			*game;
+	game_cl_Single				*game;
 	BOOL						m_bGameConfigStarted;
 	BOOL						game_configured;
 	NET_Queue_Event				*game_events;
 	xr_deque<CSE_Abstract*>		game_spawn_queue;
-	xrServer*					Server;
+	game_sv_Single*				Server;
 	GlobalFeelTouch				m_feel_deny;
 	
 	CZoneList*					hud_zones_list;
@@ -341,8 +338,6 @@ public:
 	IC CBulletManager&	BulletManager() {return	*m_pBulletManager;}
 
 	//by Mad Max 
-			bool			IsServer					();
-			bool			IsClient					();
 			CSE_Abstract	*spawn_item					(LPCSTR section, const Fvector &position, u32 level_vertex_id, u16 parent_id, bool return_item = false);
 			
 protected:
@@ -375,7 +370,7 @@ add_to_type_list(CLevel)
 #define script_type_list save_type_list(CLevel)
 
 IC CLevel&				Level()		{ return *((CLevel*) g_pGameLevel);			}
-IC game_cl_GameState&	Game()		{ return *Level().game;					}
+IC game_cl_Single&		Game()		{ return *Level().game;					}
 	u32					GameID();
 
 
@@ -431,10 +426,6 @@ IC CPHCommander & CLevel::ph_commander_physics_worldstep()
 	VERIFY(m_ph_commander_scripts);
 	return *m_ph_commander_physics_worldstep;
 }
-//by Mad Max 
-IC bool		OnServer()			{ return Level().IsServer();}
-IC bool		OnClient()			{ return Level().IsClient();}
 
 extern BOOL						g_bDebugEvents;
-
 // -------------------------------------------------------------------------------------------------
